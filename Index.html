@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e77722">
+<meta name="application-name" content="MARITANINO">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MARITANINO">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Cruscotto digitale del plesso Maritano: organizzazione, strumenti, documenti e risorse in un'unica Home.">
+<meta property="og:title" content="MARITANINO">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://flavionaretti-commits.github.io/maritanino/">
+<meta property="og:image" content="https://flavionaretti-commits.github.io/maritanino/icons/icon-512.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="Icona di MARITANINO">
+<meta property="og:description" content="Il cruscotto digitale della Maritano: strumenti, documenti, orari, regolamenti e risorse del plesso in un’unica Home.">
+<meta property="og:site_name" content="MARITANINO">
+<meta property="og:locale" content="it_IT">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+<title>MARITANINO</title>
+<style>
+:root{
+  --bg:#f5f1e8;
+  --panel:#fffdf8;
+  --ink:#1f2937;
+  --muted:#6b7280;
+  --line:#ded7ca;
+  --orange:#e77722;
+  --orange-strong:#c95e0d;
+  --orange-soft:#fff0e3;
+  --blue:#2f6fb0;
+  --blue-soft:#eaf3fb;
+  --hero1:#fff9f1;
+  --hero2:#ffe5ce;
+  --hero-ink:#6c5543;
+  --topfade:rgba(245,241,232,.96);
+  --shadow:0 10px 28px rgba(30,35,40,.10);
+}
+:root[data-theme="dark"]{
+  --bg:#15191f;
+  --panel:#20262e;
+  --ink:#f3f4f6;
+  --muted:#aab2bd;
+  --line:#39424e;
+  --orange:#f08a3c;
+  --orange-strong:#ff9b50;
+  --orange-soft:#3a281c;
+  --blue:#63a7e8;
+  --blue-soft:#1c3145;
+  --hero1:#26211d;
+  --hero2:#35251b;
+  --hero-ink:#f1c9aa;
+  --topfade:rgba(21,25,31,.96);
+  --shadow:0 10px 28px rgba(0,0,0,.30);
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+body{transition:background .18s ease,color .18s ease}
+button,a{font:inherit}
+button{cursor:pointer}
+.app{max-width:1180px;margin:auto;padding:12px 14px 28px}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0 12px;
+  background:linear-gradient(var(--topfade) 78%,transparent);
+  backdrop-filter:saturate(120%) blur(4px);
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{
+  width:48px;height:48px;border-radius:14px;background:var(--orange);
+  display:grid;place-items:center;color:#fff;font-weight:900;font-size:1.35rem;
+  box-shadow:var(--shadow);flex:0 0 auto;
+}
+.brand h1{
+  font-size:clamp(1.25rem,3vw,1.8rem);margin:0;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.brand small{display:block;color:var(--muted);margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:8px}
+.iconbtn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  width:44px;height:44px;border-radius:12px;font-weight:800;
+  transition:.15s transform,.15s border-color,.15s background;
+}
+.iconbtn:hover{border-color:var(--orange)}
+.iconbtn:active{transform:translateY(1px)}
+.hero{
+  background:linear-gradient(135deg,var(--hero1),var(--hero2));
+  border:1px solid color-mix(in srgb,var(--orange) 45%,var(--line));
+  border-radius:22px;padding:20px;box-shadow:var(--shadow);margin-bottom:14px;
+}
+.hero h2{margin:0 0 6px;font-size:clamp(1.3rem,4vw,2rem)}
+.hero p{margin:0;color:var(--hero-ink);line-height:1.45}
+.section-title{
+  display:flex;align-items:end;justify-content:space-between;gap:10px;
+  margin:20px 4px 9px
+}
+.section-title h3{margin:0;font-size:1rem;letter-spacing:.06em;text-transform:uppercase}
+.section-title span{font-size:.82rem;color:var(--muted)}
+.grid{display:grid;gap:10px}
+.org-grid{grid-template-columns:repeat(3,1fr)}
+.tools-grid{grid-template-columns:repeat(4,1fr)}
+.card{
+  position:relative;min-height:150px;text-align:left;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);border-radius:18px;padding:16px;
+  box-shadow:var(--shadow);transition:.15s transform,.15s border-color,.15s background;
+}
+.card:active{transform:translateY(1px)}
+.card:hover{border-color:color-mix(in srgb,var(--orange) 55%,var(--line))}
+.card .emoji{font-size:2rem;display:block;margin-bottom:12px}
+.card b{font-size:1rem;display:block;margin-bottom:5px}
+.card p{font-size:.84rem;line-height:1.35;color:var(--muted);margin:0;padding-right:16px}
+.badge{
+  position:absolute;top:12px;right:12px;border-radius:999px;padding:4px 7px;
+  font-size:.67rem;font-weight:800;background:var(--orange-soft);color:var(--orange-strong)
+}
+.card.external .badge,.card.menu .badge{
+  background:var(--blue-soft);color:var(--blue)
+}
+.card.soon{opacity:.70}
+.card.soon .badge{background:color-mix(in srgb,var(--panel) 80%,#777 20%);color:var(--muted)}
+.footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:22px;line-height:1.5}
+.footer strong{color:var(--ink)}
+.viewer{display:none;position:fixed;inset:0;z-index:50;background:var(--panel)}
+.viewer.active{display:flex;flex-direction:column}
+.viewerbar{
+  min-height:58px;flex:0 0 auto;display:flex;align-items:center;gap:8px;
+  padding:max(8px,env(safe-area-inset-top)) 10px 8px;
+  background:var(--panel);border-bottom:1px solid var(--line)
+}
+.viewerbar button{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:10px;padding:.58rem .72rem;font-weight:800
+}
+.viewerbar strong{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer iframe{border:0;width:100%;flex:1;background:white}
+.sheet{
+  display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);
+  align-items:flex-end;justify-content:center;padding:12px
+}
+.sheet.active{display:flex}
+.sheetbox{
+  width:min(720px,100%);max-height:85vh;overflow:auto;background:var(--panel);
+  border-radius:20px 20px 14px 14px;padding:16px;box-shadow:0 18px 60px rgba(0,0,0,.35)
+}
+.sheethead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.sheethead h3{margin:0}
+.close{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  width:38px;height:38px;border-radius:10px;font-size:1.2rem
+}
+.menu-list{display:grid;gap:8px}
+.menu-item{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:14px;padding:12px;display:flex;align-items:center;gap:12px;text-align:left
+}
+.menu-item:hover{border-color:var(--blue)}
+.menu-item .emoji{font-size:1.5rem}
+.menu-item div{flex:1;min-width:0}
+.menu-item b{display:block}
+.menu-item small{color:var(--muted)}
+.menu-arrow{font-weight:900;color:var(--blue);font-size:1.15rem}
+.note{
+  background:var(--orange-soft);
+  border:1px solid color-mix(in srgb,var(--orange) 45%,var(--line));
+  border-radius:14px;padding:12px;font-size:.86rem;color:var(--hero-ink);
+  line-height:1.45;margin-top:10px
+}
+.info-credit{
+  margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--blue-soft);
+  border:1px solid color-mix(in srgb,var(--blue) 38%,var(--line));line-height:1.45
+}
+.info-credit strong{color:var(--blue)}
+@media(max-width:920px){
+  .org-grid,.tools-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){
+  .app{padding:8px 8px 22px}
+  .topbar{padding-top:7px}
+  .logo{width:44px;height:44px;border-radius:13px}
+  .iconbtn{width:42px;height:42px}
+  .grid{gap:7px}
+  .card{padding:13px;min-height:148px}
+  .card .emoji{font-size:1.7rem;margin-bottom:9px}
+  .card p{font-size:.78rem;padding-right:5px}
+  .brand small{display:none}
+  .hero{padding:16px}
+  .badge{top:10px;right:10px}
+}
+@media(max-width:360px){
+  .org-grid,.tools-grid{grid-template-columns:1fr}
+  .card{min-height:126px}
+}
+@media(orientation:landscape) and (max-height:560px){
+  .app{max-width:1280px;padding-top:4px}
+  .topbar{position:relative;padding:5px 0 8px;background:transparent;backdrop-filter:none}
+  .logo{width:40px;height:40px;border-radius:11px}
+  .brand h1{font-size:1.22rem}
+  .brand small{display:none}
+  .iconbtn{width:40px;height:40px}
+  .hero{padding:12px 15px;border-radius:16px;margin-bottom:8px}
+  .hero h2{font-size:1.22rem;margin-bottom:3px}
+  .hero p{font-size:.84rem}
+  .section-title{margin:12px 4px 7px}
+  .org-grid{grid-template-columns:repeat(3,1fr)}
+  .tools-grid{grid-template-columns:repeat(4,1fr)}
+  .card{min-height:118px;padding:11px}
+  .card .emoji{font-size:1.45rem;margin-bottom:7px}
+  .card b{font-size:.88rem}
+  .card p{font-size:.72rem}
+  .badge{font-size:.58rem;top:8px;right:8px}
+}
+@media(min-width:921px) and (max-width:1180px){
+  .org-grid{grid-template-columns:repeat(3,1fr)}
+  .tools-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">M</div>
+      <div>
+        <h1>MARITANINO</h1>
+        <small>Il cruscotto digitale della Maritano</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="iconbtn" id="themeBtn" aria-label="Cambia tema" title="Giorno / Notte">🌙</button>
+      <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h2>Tutta la Maritano in un posto solo.</h2>
+    <p>Organizzazione, strumenti, prenotazioni, materiali e risorse del plesso, raccolti in una Home unica e facile da aggiornare.</p>
+  </section>
+
+  <div class="section-title">
+    <h3>Strumenti</h3>
+    <span>uso quotidiano</span>
+  </div>
+
+  <div class="grid tools-grid">
+    <button class="card external" data-kind="external" data-key="registroAxios">
+      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
+      <b>Registro Elettronico AXIOS</b>
+      <p>Accedi al Registro Elettronico AXIOS con le tue credenziali personali.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="sitoScuola">
+      <span class="badge">ESTERNO ↗</span><span class="emoji">🌐</span>
+      <b>Sito della scuola</b>
+      <p>Accedi al sito ufficiale dell’Istituto Comprensivo Baricco.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="sostituzioni">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">🔄</span>
+      <b>Assenti e sostituzioni</b>
+      <p>Apri il documento condiviso su GoodNotes per assenze e sostituzioni del plesso.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="prenotazioni">
+      <span class="badge">GOOGLE CALENDAR ↗</span><span class="emoji">🏫</span>
+      <b>Prenota aule e laboratori</b>
+      <p>Apri Google Calendar per prenotare aule e laboratori condivisi.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="libriTesto">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">📖</span>
+      <b>Libri di testo</b>
+      <p>Consulta l’elenco aggiornato dei libri di testo adottati.</p>
+    </button>
+
+    <button class="card" data-kind="internal" data-key="banchi">
+      <span class="badge">APP</span><span class="emoji">🪑</span>
+      <b>Disposizione banchi</b>
+      <p>Organizza l’aula, assegna i cognomi, salva, estrae e stampa.</p>
+    </button>
+
+    <button class="card menu" id="gamesBtn">
+      <span class="badge">RACCOLTA</span><span class="emoji">🎲</span>
+      <b>Giochi in classe</b>
+      <p>Giochi per attività condivise e momenti di festa.</p>
+    </button>
+  </div>
+
+  <div class="section-title">
+    <h3>Organizzazione</h3>
+    <span>informazioni e risorse del plesso</span>
+  </div>
+
+  <div class="grid org-grid">
+    <button class="card external" data-kind="external" data-key="calendario">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">📅</span>
+      <b>Calendario impegni</b>
+      <p>Riunioni, consigli, eventi, scadenze e attività comuni.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="calendarioRegionale">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">🗓️</span>
+      <b>Calendario regionale</b>
+      <p>Calendario scolastico regionale con festività e sospensioni delle lezioni.</p>
+    </button>
+
+    <button class="card menu" id="orarioBtn">
+      <span class="badge">MENU</span><span class="emoji">🕐</span>
+      <b>Orario</b>
+      <p>Consulta l’orario generale del plesso o quello delle singole classi.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="organigramma">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">🧩</span>
+      <b>Organigramma</b>
+      <p>Ruoli, incarichi e organizzazione del plesso.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="cattedre">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">🎓</span>
+      <b>Cattedre</b>
+      <p>Quadro delle cattedre e della loro distribuzione nel plesso.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="coordinatori">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">👥</span>
+      <b>Coordinatori e Segretari</b>
+      <p>Elenco dei coordinatori e dei segretari delle classi.</p>
+    </button>
+
+    <button class="card menu" id="auleBtn">
+      <span class="badge">MENU</span><span class="emoji">🗺️</span>
+      <b>Distribuzione aule</b>
+      <p>Consulta la distribuzione delle classi e degli spazi nei tre piani del plesso.</p>
+    </button>
+
+    <button class="card menu" id="regolamentiBtn">
+      <span class="badge">MENU</span><span class="emoji">📚</span>
+      <b>Regolamenti</b>
+      <p>Consulta i principali regolamenti di istituto, degli spazi e delle attività del plesso.</p>
+    </button>
+
+    <button class="card" data-kind="internal" data-key="materiali">
+      <span class="badge">SEZIONE</span><span class="emoji">🗂️</span>
+      <b>Materiali</b>
+      <p>PDF, immagini e documenti utili sempre aggiornabili.</p>
+    </button>
+
+    <button class="card menu" id="giocoCaseBtn">
+      <span class="badge">MENU</span><span class="emoji">🏆</span>
+      <b>Gioco delle Case</b>
+      <p>Segnapunti e regolamenti del Gioco delle Case della Maritano.</p>
+    </button>
+
+    <button class="card menu" id="modulisticaBtn">
+      <span class="badge">MENU</span><span class="emoji">📋</span>
+      <b>Modulistica</b>
+      <p>Accesso rapido ai moduli utilizzati più spesso nel plesso.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="biblioteca">
+      <span class="badge">ESTERNO ↗</span><span class="emoji">📚</span>
+      <b>Biblioteca del Maritanino</b>
+      <p>Risorse e catalogo della biblioteca del Maritanino, pensata per gli insegnanti.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="bibliotecaScolastica">
+      <span class="badge">ESTERNO ↗</span><span class="emoji">🏫</span>
+      <b>Biblioteca scolastica</b>
+      <p>Accedi al sito della biblioteca scolastica della Maritano.</p>
+    </button>
+
+    <button class="card" data-kind="internal" data-key="cineteca">
+      <span class="badge">SEZIONE</span><span class="emoji">🎬</span>
+      <b>Cineteca della Maritano</b>
+      <p>Elenco dei film disponibili e delle risorse video del plesso.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="virtualTour">
+      <span class="badge">ESTERNO ↗</span><span class="emoji">🏫</span>
+      <b>Virtual Tour della Scuola</b>
+      <p>Esplora gli ambienti e gli spazi della Maritano attraverso il tour virtuale.</p>
+    </button>
+  </div>
+
+  <div class="footer">
+    🔒 Le sezioni possono puntare a strumenti esterni con i rispettivi sistemi di accesso.<br>
+    <strong>© 2026 prof. Flavio Naretti · referente del plesso Maritano</strong>
+  </div>
+</div>
+
+
+
+<div class="sheet" id="orarioSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🕐 Orario</h3>
+      <button class="close" data-close="orarioSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="orarioGenerale" data-link-label="Orario generale">
+        <span class="emoji">🏫</span><div><b>Orario generale</b><small>Documento riservato · Google Drive</small></div><span class="menu-arrow">›</span>
+      </button>
+      <button class="menu-item" id="orarioClassiBtn">
+        <span class="emoji">👥</span><div><b>Orario classi</b><small>Scegli la classe</small></div><span class="menu-arrow">›</span>
+      </button>
+      <button class="menu-item submenu-link" data-link-key="orarioCampanella" data-link-label="Orario campanella">
+        <span class="emoji">🔔</span><div><b>Orario campanella</b><small>Orari delle lezioni, degli intervalli e delle campanelle</small></div><span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="orarioClassiSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>👥 Orario classi</h3>
+      <button class="close" data-close="orarioClassiSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="orario1A" data-link-label="Orario 1A">
+        <span class="emoji">🏫</span>
+        <div><b>1A</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2A" data-link-label="Orario 2A">
+        <span class="emoji">🏫</span>
+        <div><b>2A</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario3A" data-link-label="Orario 3A">
+        <span class="emoji">🏫</span>
+        <div><b>3A</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario1B" data-link-label="Orario 1B">
+        <span class="emoji">🏫</span>
+        <div><b>1B</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2B" data-link-label="Orario 2B">
+        <span class="emoji">🏫</span>
+        <div><b>2B</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario3B" data-link-label="Orario 3B">
+        <span class="emoji">🏫</span>
+        <div><b>3B</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario1C" data-link-label="Orario 1C">
+        <span class="emoji">🏫</span>
+        <div><b>1C</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2C" data-link-label="Orario 2C">
+        <span class="emoji">🏫</span>
+        <div><b>2C</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario3C" data-link-label="Orario 3C">
+        <span class="emoji">🏫</span>
+        <div><b>3C</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario1D" data-link-label="Orario 1D">
+        <span class="emoji">🏫</span>
+        <div><b>1D</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2D" data-link-label="Orario 2D">
+        <span class="emoji">🏫</span>
+        <div><b>2D</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario3D" data-link-label="Orario 3D">
+        <span class="emoji">🏫</span>
+        <div><b>3D</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario1E" data-link-label="Orario 1E">
+        <span class="emoji">🏫</span>
+        <div><b>1E</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2E" data-link-label="Orario 2E">
+        <span class="emoji">🏫</span>
+        <div><b>2E</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario3E" data-link-label="Orario 3E">
+        <span class="emoji">🏫</span>
+        <div><b>3E</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario1F" data-link-label="Orario 1F">
+        <span class="emoji">🏫</span>
+        <div><b>1F</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2F" data-link-label="Orario 2F">
+        <span class="emoji">🏫</span>
+        <div><b>2F</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario3F" data-link-label="Orario 3F">
+        <span class="emoji">🏫</span>
+        <div><b>3F</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="orario2G" data-link-label="Orario 2G">
+        <span class="emoji">🏫</span>
+        <div><b>2G</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="auleSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🗺️ Distribuzione aule</h3>
+      <button class="close" data-close="auleSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="pianoTerra" data-link-label="Piano terra">
+        <span class="emoji">0️⃣</span>
+        <div><b>Piano terra</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="primoPiano" data-link-label="Primo piano">
+        <span class="emoji">1️⃣</span>
+        <div><b>Primo piano</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="secondoPiano" data-link-label="Secondo piano">
+        <span class="emoji">2️⃣</span>
+        <div><b>Secondo piano</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="regolamentiSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>📚 Regolamenti</h3>
+      <button class="close" data-close="regolamentiSheet">×</button>
+    </div>
+    <div class="menu-list">
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoIstituto" data-link-label="Regolamento di istituto">
+        <span class="emoji">🏛️</span>
+        <div><b>Regolamento di istituto</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoAssenze" data-link-label="Regolamento assenze">
+        <span class="emoji">📝</span>
+        <div><b>Regolamento assenze</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoIntervalli" data-link-label="Regolamento intervalli">
+        <span class="emoji">⏸️</span>
+        <div><b>Regolamento intervalli</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoScioperi" data-link-label="Regolamento scioperi">
+        <span class="emoji">📢</span>
+        <div><b>Regolamento scioperi</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoFotocopie" data-link-label="Regolamento fotocopie">
+        <span class="emoji">🖨️</span>
+        <div><b>Regolamento fotocopie</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoPingPongCalcetto" data-link-label="Regolamento ping pong e calcetto">
+        <span class="emoji">🏓</span>
+        <div><b>Regolamento ping pong e calcetto</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoBiblioteca" data-link-label="Regolamento biblioteca">
+        <span class="emoji">📖</span>
+        <div><b>Regolamento biblioteca</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoAulaVerde" data-link-label="Regolamento aula verde">
+        <span class="emoji">🌿</span>
+        <div><b>Regolamento aula verde</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoAulaInformatica" data-link-label="Regolamento aula informatica">
+        <span class="emoji">💻</span>
+        <div><b>Regolamento aula informatica</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoAulaStem" data-link-label="Regolamento aula STEM">
+        <span class="emoji">🧪</span>
+        <div><b>Regolamento aula STEM</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoPodcastIpad" data-link-label="Regolamento aula Podcast / iPad">
+        <span class="emoji">🎙️</span>
+        <div><b>Regolamento aula Podcast / iPad</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="modulisticaSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>📋 Modulistica</h3>
+      <button class="close" data-close="modulisticaSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="moduloInfortuni" data-link-label="Modulo infortuni">
+        <span class="emoji">🩹</span><div><b>Modulo infortuni</b><small>Documento riservato · Google Drive</small></div><span class="menu-arrow">›</span>
+      </button>
+      <button class="menu-item submenu-link" data-link-key="moduloEsperti" data-link-label="Modulo intervento esperti esterni">
+        <span class="emoji">🧑‍🏫</span><div><b>Modulo intervento esperti esterni</b><small>Documento riservato · Google</small></div><span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="giocoCaseSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🏆 Gioco delle Case</h3>
+      <button class="close" data-close="giocoCaseSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="giocoCaseApp" data-link-label="APP segnapunti">
+        <span class="emoji">📊</span>
+        <div><b>APP segnapunti</b><small>Prossimamente</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="giocoCaseCompleto" data-link-label="Regolamento completo">
+        <span class="emoji">📘</span>
+        <div><b>Regolamento completo</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="giocoCaseBreve" data-link-label="Regolamento abbreviato">
+        <span class="emoji">📄</span>
+        <div><b>Regolamento abbreviato</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="gamesSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🎲 Giochi in classe</h3>
+      <button class="close" data-close="gamesSheet">×</button>
+    </div>
+    <div class="menu-list" id="gamesList"></div>
+    <div class="note">I giochi vengono aperti in una nuova scheda e possono continuare a esistere anche come PWA autonome.</div>
+  </div>
+</div>
+
+<div class="sheet" id="infoSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>ⓘ MARITANINO</h3>
+      <button class="close" data-close="infoSheet">×</button>
+    </div>
+
+    <p>MARITANINO è il cruscotto digitale della Maritano: una Home unica da cui raggiungere organizzazione, strumenti, servizi condivisi, materiali e risorse del plesso.</p>
+    <p><strong>Collegamenti</strong>: su Android e PC sezioni, strumenti e giochi si aprono in una nuova scheda. Su iPhone/iPad installato come app si aprono nella stessa vista per evitare una limitazione di iOS; il comando Indietro riporta a MARITANINO.</p>
+    <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni.</p>
+    <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
+
+    <div class="info-credit">
+      <strong>Sviluppata da prof. Flavio Naretti</strong><br>
+      Referente del plesso Maritano
+    </div>
+  </div>
+</div>
+
+<script>
+const LINKS={
+  calendario:"https://drive.google.com/file/d/1O7biR9mM_MZrlw4Rcjv5LkzrwBmkA5Io/view?usp=drive_link",
+  calendarioRegionale:"https://drive.google.com/file/d/1diLlqgQzTIwbNrqHRdgX9cCEk7mDz54x/view?usp=drive_link",
+  orarioGenerale:"https://drive.google.com/file/d/10vtKO4I0ptcXWyvhGKE7H2U32ZIGGINv/view?usp=sharing",
+  orario1A:"",
+  orario2A:"",
+  orario3A:"",
+  orario1B:"",
+  orario2B:"",
+  orario3B:"",
+  orario1C:"",
+  orario2C:"",
+  orario3C:"",
+  orario1D:"",
+  orario2D:"",
+  orario3D:"",
+  orario1E:"",
+  orario2E:"",
+  orario3E:"",
+  orario1F:"",
+  orario2F:"",
+  orario3F:"",
+  orario2G:"",
+  orarioCampanella:"https://drive.google.com/file/d/1Voc-dMBRCiuy4dJHSe1Ff4hqOhAl52bJ/view?usp=drive_link",
+  organigramma:"https://drive.google.com/file/d/1hE3jvxYG3yrgHQ4DmSvlgKjRb-g5NkN2/view?usp=sharing",
+  cattedre:"https://drive.google.com/file/d/1fWEJvRgpNdPzAbV8d9Tl4BwTMbU0_OUZ/view?usp=drive_link",
+  coordinatori:"https://drive.google.com/file/d/1qZVl0rP7ZYz5DPaKMLn9SD7vLJdJHX9I/view?usp=sharing",
+  pianoTerra:"https://drive.google.com/file/d/1A1H-dplIKW9cnmoMnDExy_dzyKIhsnYn/view?usp=sharing",
+  primoPiano:"https://drive.google.com/file/d/1irB71S16vNVItM78Gy3wO4sWnaD0gclW/view?usp=sharing",
+  secondoPiano:"https://drive.google.com/file/d/1b1daxxF_MGV1qdMlm7pask-_8_MoVhUj/view?usp=sharing",
+  regolamentoIstituto:"https://drive.google.com/file/d/1aBDLfAGSxEUX2SOc7OBmFBcx8L6mlYGy/view?usp=sharing",
+  regolamentoAssenze:"",
+  regolamentoIntervalli:"https://drive.google.com/file/d/1YiKgKJk6nuE3kJ0OsSCRXWKrYNST4ANW/view?usp=sharing",
+  regolamentoScioperi:"https://drive.google.com/file/d/1TeVaTQrdxvPyVBzD4Ezqsx6TWYvcyfW-/view?usp=sharing",
+  regolamentoPingPongCalcetto:"",
+  regolamentoBiblioteca:"",
+  regolamentoAulaVerde:"",
+  regolamentoAulaInformatica:"",
+  regolamentoAulaStem:"",
+  regolamentoPodcastIpad:"",
+  regolamentoFotocopie:"",
+  materiali:"",
+  giocoCaseApp:"",
+  giocoCaseCompleto:"https://drive.google.com/file/d/1PCT5-ze8w8abjyNAE_2gnlDzK-b978lJ/view?usp=sharing",
+  giocoCaseBreve:"https://drive.google.com/file/d/11FNmlez2HIaxXGDI0R2RcLTkbtbj2wWJ/view?usp=sharing",
+  moduloInfortuni:"https://drive.google.com/file/d/1cvDNbcGijkxxg0eSBY0_e9XowqQZijLg/view?usp=sharing",
+  moduloEsperti:"https://docs.google.com/document/d/1JGlG-Xz4xd3XDcefRNs_sQOANpBLoMv4/edit?usp=sharing&ouid=110331905644863965040&rtpof=true&sd=true",
+  biblioteca:"https://sites.google.com/view/labibliotecadelmaritanino?usp=sharing",
+  bibliotecaScolastica:"https://sites.google.com/view/bibliotecamaritano/home",
+  cineteca:"",
+  virtualTour:"https://sway.cloud.microsoft/ayBPvXWkKJ779WZC",
+  registroAxios:"https://registro.axioscloud.it/Pages/SD/SD_Login.aspx",
+  sitoScuola:"https://www.scuolabaricco.edu.it/",
+  sostituzioni:"https://share.goodnotes.com/s/lebuJKMUgN4SfeOqObcS8A",
+  prenotazioni:"https://calendar.google.com/calendar/u/0/r",
+  libriTesto:"https://drive.google.com/file/d/1DzVSicxSN5VrfaiNfRRHvcF_CPBPB6h5/view?usp=sharing",
+  banchi:"https://flavionaretti-commits.github.io/disposizione-banchi/"
+};
+
+const GAMES=[
+  {key:"ignorante",name:"L’IGNORANTE!",emoji:"🕵️",url:"https://flavionaretti-commits.github.io/ignorante/"},
+  {key:"attento",name:"ATTENTO A QUELLO CHE DICI!",emoji:"🚫",url:"https://flavionaretti-commits.github.io/attento-a-quello-che-dici/"},
+  {key:"magistri",name:"HIC SUNT MAGISTRI!",emoji:"🏫",url:"https://flavionaretti-commits.github.io/hic-sunt-magistri/"},
+  {key:"scarabocchio",name:"SCARABOCCHIO!",emoji:"✏️",url:"https://flavionaretti-commits.github.io/scarabocchio/"}
+];
+
+/* SUONO DISCRETO AL TAP */
+let audioCtx=null;
+function tapSound(){
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type="sine";
+    osc.frequency.setValueAtTime(520,audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.018,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.055);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime+0.06);
+  }catch(e){}
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('button')) tapSound();
+});
+
+/* TEMA GIORNO / NOTTE AUTOMATICO */
+const themeBtn=document.getElementById('themeBtn');
+
+function applyTheme(theme){
+  document.documentElement.dataset.theme=theme;
+  themeBtn.textContent=theme==="dark" ? "☀️" : "🌙";
+  themeBtn.title=theme==="dark" ? "Passa alla modalità Giorno" : "Passa alla modalità Notte";
+  themeBtn.setAttribute(
+    "aria-label",
+    theme==="dark" ? "Passa alla modalità Giorno" : "Passa alla modalità Notte"
+  );
+  document.querySelector('meta[name="theme-color"]').setAttribute(
+    'content',
+    theme==="dark" ? "#15191f" : "#e77722"
+  );
+}
+
+function automaticTheme(){
+  const hour=new Date().getHours();
+  return (hour>=7 && hour<20) ? "light" : "dark";
+}
+
+/* A ogni apertura MARITANINO sceglie il tema in base all'ora del dispositivo. */
+applyTheme(automaticTheme());
+
+/* Il cambio manuale vale per la sessione corrente. Alla prossima apertura
+   verrà nuovamente applicata la scelta automatica in base all'orario. */
+themeBtn.onclick=()=>{
+  const next=document.documentElement.dataset.theme==="dark" ? "light" : "dark";
+  applyTheme(next);
+};
+
+function missing(label){
+  alert(`Il collegamento “${label}” non è ancora stato inserito nella configurazione di MARITANINO.`);
+}
+function isIOSDevice(){
+  const ua=navigator.userAgent || "";
+  return /iPad|iPhone|iPod/.test(ua) ||
+         (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+}
+
+function isStandaloneApp(){
+  return window.navigator.standalone===true ||
+         window.matchMedia("(display-mode: standalone)").matches;
+}
+
+function openInNewTab(label,url){
+  if(!url){missing(label);return}
+
+  /* iPhone/iPad:
+     non usiamo mai window.open / target=_blank.
+     In questo modo evitiamo le schede about:blank lasciate da WebKit.
+     Il collegamento si apre nella stessa vista e Indietro riporta a MARITANINO. */
+  if(isIOSDevice()){
+    window.location.assign(url);
+    return;
+  }
+
+  /* Android e PC: nuova scheda. */
+  window.open(url,'_blank','noopener');
+}
+
+document.querySelectorAll('[data-kind]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const key=btn.dataset.key;
+    const label=btn.querySelector('b').textContent;
+    openInNewTab(label,LINKS[key]);
+  });
+});
+
+/* SOTTOMENU */
+
+document.getElementById('orarioBtn').onclick=()=>document.getElementById('orarioSheet').classList.add('active');
+document.getElementById('orarioClassiBtn').onclick=()=>{
+  document.getElementById('orarioSheet').classList.remove('active');
+  document.getElementById('orarioClassiSheet').classList.add('active');
+};
+document.getElementById('auleBtn').onclick=()=>document.getElementById('auleSheet').classList.add('active');
+document.getElementById('regolamentiBtn').onclick=()=>document.getElementById('regolamentiSheet').classList.add('active');
+document.getElementById('modulisticaBtn').onclick=()=>document.getElementById('modulisticaSheet').classList.add('active');
+document.getElementById('giocoCaseBtn').onclick=()=>document.getElementById('giocoCaseSheet').classList.add('active');
+
+document.querySelectorAll('.submenu-link').forEach(btn=>{
+  btn.onclick=()=>{
+    const key=btn.dataset.linkKey;
+    const label=btn.dataset.linkLabel;
+    btn.closest('.sheet').classList.remove('active');
+    openInNewTab(label,LINKS[key]);
+  };
+});
+
+/* GIOCHI */
+const gamesList=document.getElementById('gamesList');
+GAMES.forEach(g=>{
+  const b=document.createElement('button');
+  b.className='menu-item';
+  b.innerHTML=`<span class="emoji">${g.emoji}</span><div><b>${g.name}</b><small>${g.url ? 'Apri il gioco' : 'Collegamento da aggiungere'}</small></div><span class="menu-arrow">›</span>`;
+  b.onclick=()=>{
+    document.getElementById('gamesSheet').classList.remove('active');
+    openInNewTab(g.name,g.url);
+  };
+  gamesList.appendChild(b);
+});
+document.getElementById('gamesBtn').onclick=()=>document.getElementById('gamesSheet').classList.add('active');
+
+/* INFO E CHIUSURE */
+document.getElementById('infoBtn').onclick=()=>document.getElementById('infoSheet').classList.add('active');
+document.querySelectorAll('[data-close]').forEach(b=>{
+  b.onclick=()=>document.getElementById(b.dataset.close).classList.remove('active');
+});
+document.querySelectorAll('.sheet').forEach(s=>{
+  s.addEventListener('click',e=>{
+    if(e.target===s) s.classList.remove('active');
+  });
+});
+</script>
+
+<script>
+/* PWA: registrazione del service worker */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(reg => reg.update())
+      .catch(err => console.warn("Service worker non disponibile:", err));
+  });
+}
+</script>
+
+</body>
+</html>
