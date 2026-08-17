@@ -247,6 +247,49 @@ button{cursor:pointer}
   </section>
 
   <div class="section-title">
+    <h3>Strumenti</h3>
+    <span>uso quotidiano</span>
+  </div>
+
+  <div class="grid tools-grid">
+    <button class="card external" data-kind="external" data-key="registroAxios">
+      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
+      <b>Registro Elettronico AXIOS</b>
+      <p>Accedi al Registro Elettronico AXIOS con le tue credenziali personali.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="sostituzioni">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">🔄</span>
+      <b>Assenti e sostituzioni</b>
+      <p>Apri il documento condiviso su GoodNotes per assenze e sostituzioni del plesso.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="prenotazioni">
+      <span class="badge">GOOGLE CALENDAR ↗</span><span class="emoji">🏫</span>
+      <b>Prenota aule e laboratori</b>
+      <p>Apri Google Calendar per prenotare aule e laboratori condivisi.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="libriTesto">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">📖</span>
+      <b>Libri di testo</b>
+      <p>Consulta l’elenco aggiornato dei libri di testo adottati.</p>
+    </button>
+
+    <button class="card" data-kind="internal" data-key="banchi">
+      <span class="badge">APP</span><span class="emoji">🪑</span>
+      <b>Disposizione banchi</b>
+      <p>Organizza l’aula, assegna i cognomi, salva, estrae e stampa.</p>
+    </button>
+
+    <button class="card menu" id="gamesBtn">
+      <span class="badge">RACCOLTA</span><span class="emoji">🎲</span>
+      <b>Giochi in classe</b>
+      <p>Tutti i giochi sviluppati per attività, ripassi e momenti di classe.</p>
+    </button>
+  </div>
+
+  <div class="section-title">
     <h3>Organizzazione</h3>
     <span>informazioni e risorse del plesso</span>
   </div>
@@ -340,49 +383,6 @@ button{cursor:pointer}
       <span class="badge">ESTERNO ↗</span><span class="emoji">🏫</span>
       <b>Virtual Tour della Scuola</b>
       <p>Esplora gli ambienti e gli spazi della Maritano attraverso il tour virtuale.</p>
-    </button>
-  </div>
-
-  <div class="section-title">
-    <h3>Strumenti</h3>
-    <span>uso quotidiano</span>
-  </div>
-
-  <div class="grid tools-grid">
-    <button class="card external" data-kind="external" data-key="registroAxios">
-      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
-      <b>Registro Elettronico AXIOS</b>
-      <p>Accedi al Registro Elettronico AXIOS con le tue credenziali personali.</p>
-    </button>
-
-    <button class="card external" data-kind="external" data-key="sostituzioni">
-      <span class="badge">🔐 RISERVATO</span><span class="emoji">🔄</span>
-      <b>Assenti e sostituzioni</b>
-      <p>Apri il documento condiviso su GoodNotes per assenze e sostituzioni del plesso.</p>
-    </button>
-
-    <button class="card external" data-kind="external" data-key="prenotazioni">
-      <span class="badge">GOOGLE CALENDAR ↗</span><span class="emoji">🏫</span>
-      <b>Prenota aule e laboratori</b>
-      <p>Apri Google Calendar per prenotare aule e laboratori condivisi.</p>
-    </button>
-
-    <button class="card external" data-kind="external" data-key="libriTesto">
-      <span class="badge">🔐 RISERVATO</span><span class="emoji">📖</span>
-      <b>Libri di testo</b>
-      <p>Consulta l’elenco aggiornato dei libri di testo adottati.</p>
-    </button>
-
-    <button class="card" data-kind="internal" data-key="banchi">
-      <span class="badge">APP</span><span class="emoji">🪑</span>
-      <b>Disposizione banchi</b>
-      <p>Organizza l’aula, assegna i cognomi, salva, estrae e stampa.</p>
-    </button>
-
-    <button class="card menu" id="gamesBtn">
-      <span class="badge">RACCOLTA</span><span class="emoji">🎲</span>
-      <b>Giochi in classe</b>
-      <p>Tutti i giochi sviluppati per attività, ripassi e momenti di classe.</p>
     </button>
   </div>
 
@@ -782,7 +782,6 @@ const LINKS={
 const GAMES=[
   {key:"ignorante",name:"L’IGNORANTE!",emoji:"🕵️",url:"https://flavionaretti-commits.github.io/ignorante/"},
   {key:"attento",name:"ATTENTO A QUELLO CHE DICI!",emoji:"🚫",url:"https://flavionaretti-commits.github.io/attento-a-quello-che-dici/"},
-  {key:"indizi",name:"20 INDIZI!",emoji:"❓",url:""},
   {key:"magistri",name:"HIC SUNT MAGISTRI!",emoji:"🏫",url:"https://flavionaretti-commits.github.io/hic-sunt-magistri/"},
   {key:"scarabocchio",name:"SCARABOCCHIO!",emoji:"✏️",url:"https://flavionaretti-commits.github.io/scarabocchio/"}
 ];
