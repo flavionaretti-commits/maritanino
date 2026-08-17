@@ -844,8 +844,29 @@ themeBtn.onclick=()=>{
 function missing(label){
   alert(`Il collegamento “${label}” non è ancora stato inserito nella configurazione di MARITANINO.`);
 }
+function isIOSDevice(){
+  const ua=navigator.userAgent || "";
+  return /iPad|iPhone|iPod/.test(ua) ||
+         (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+}
+
+function isStandaloneApp(){
+  return window.navigator.standalone===true ||
+         window.matchMedia("(display-mode: standalone)").matches;
+}
+
 function openInNewTab(label,url){
   if(!url){missing(label);return}
+
+  /* Su iPhone/iPad, quando MARITANINO è installata come web app,
+     forza i link HTTPS nel vero Safari. In questo modo il collegamento
+     non sostituisce il contesto standalone di MARITANINO. */
+  if(isIOSDevice() && isStandaloneApp() && /^https:\/\//i.test(url)){
+    window.location.href="x-safari-"+url;
+    return;
+  }
+
+  /* Android, PC e uso normale da browser */
   window.open(url,'_blank','noopener');
 }
 
