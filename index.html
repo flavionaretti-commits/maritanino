@@ -714,7 +714,7 @@ button{cursor:pointer}
       <button class="close" data-close="gamesSheet">×</button>
     </div>
     <div class="menu-list" id="gamesList"></div>
-    <div class="note">I giochi vengono aperti in una nuova scheda e possono continuare a esistere anche come PWA autonome.</div>
+    <div class="note">I giochi si aprono direttamente da MARITANINO e possono continuare a esistere anche come PWA autonome.</div>
   </div>
 </div>
 
@@ -801,7 +801,8 @@ const GAMES=[
   {key:"ignorante",name:"L’IGNORANTE!",emoji:"🕵️",url:"https://flavionaretti-commits.github.io/ignorante/"},
   {key:"attento",name:"ATTENTO A QUELLO CHE DICI!",emoji:"🚫",url:"https://flavionaretti-commits.github.io/attento-a-quello-che-dici/"},
   {key:"magistri",name:"HIC SUNT MAGISTRI!",emoji:"🏫",url:"https://flavionaretti-commits.github.io/hic-sunt-magistri/"},
-  {key:"scarabocchio",name:"SCARABOCCHIO!",emoji:"✏️",url:"https://flavionaretti-commits.github.io/scarabocchio/"}
+  {key:"scarabocchio",name:"SCARABOCCHIO!",emoji:"✏️",url:"https://flavionaretti-commits.github.io/scarabocchio/"},
+  {key:"storydice",name:"STORY DICE",emoji:"🎲",url:"https://davebirss.com/free-resources/"}
 ];
 
 /* SUONO DISCRETO AL TAP */
@@ -876,17 +877,15 @@ function openInNewTab(label,url){
   if(!url){missing(label);return}
 
   /* iPhone/iPad:
-     nelle PWA standalone WebKit può lasciare una scheda bianca quando
-     si usa target=_blank / window.open per collegamenti esterni.
-     Per evitarlo, navighiamo nella stessa vista: il normale comando
-     Indietro di iOS riporta direttamente a MARITANINO. */
-  if(isIOSDevice() && isStandaloneApp()){
+     non usiamo mai window.open / target=_blank.
+     In questo modo evitiamo le schede about:blank lasciate da WebKit.
+     Il collegamento si apre nella stessa vista e Indietro riporta a MARITANINO. */
+  if(isIOSDevice()){
     window.location.assign(url);
     return;
   }
 
-  /* Android, PC e uso normale da browser:
-     il collegamento continua ad aprirsi in una nuova scheda. */
+  /* Android e PC: nuova scheda. */
   window.open(url,'_blank','noopener');
 }
 
