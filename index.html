@@ -709,7 +709,7 @@ button{cursor:pointer}
     </div>
 
     <p>MARITANINO è il cruscotto digitale della Maritano: una Home unica da cui raggiungere organizzazione, strumenti, servizi condivisi, materiali e risorse del plesso.</p>
-    <p><strong>Collegamenti</strong>: sezioni, strumenti e giochi vengono aperti in una nuova scheda, così MARITANINO resta sempre disponibile come Home principale.</p>
+    <p><strong>Collegamenti</strong>: su Android e PC sezioni, strumenti e giochi si aprono in una nuova scheda. Su iPhone/iPad installato come app si aprono nella stessa vista per evitare una limitazione di iOS; il comando Indietro riporta a MARITANINO.</p>
     <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni.</p>
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
 
@@ -858,15 +858,18 @@ function isStandaloneApp(){
 function openInNewTab(label,url){
   if(!url){missing(label);return}
 
-  /* Su iPhone/iPad, quando MARITANINO è installata come web app,
-     forza i link HTTPS nel vero Safari. In questo modo il collegamento
-     non sostituisce il contesto standalone di MARITANINO. */
-  if(isIOSDevice() && isStandaloneApp() && /^https:\/\//i.test(url)){
-    window.location.href="x-safari-"+url;
+  /* iPhone/iPad:
+     nelle PWA standalone WebKit può lasciare una scheda bianca quando
+     si usa target=_blank / window.open per collegamenti esterni.
+     Per evitarlo, navighiamo nella stessa vista: il normale comando
+     Indietro di iOS riporta direttamente a MARITANINO. */
+  if(isIOSDevice() && isStandaloneApp()){
+    window.location.assign(url);
     return;
   }
 
-  /* Android, PC e uso normale da browser */
+  /* Android, PC e uso normale da browser:
+     il collegamento continua ad aprirsi in una nuova scheda. */
   window.open(url,'_blank','noopener');
 }
 
