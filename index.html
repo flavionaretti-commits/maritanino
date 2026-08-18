@@ -275,10 +275,10 @@ button{cursor:pointer}
       <p>Accedi al sito ufficiale dell’Istituto Comprensivo Baricco.</p>
     </button>
 
-    <button class="card menu" id="loghiWhatsappBtn">
-      <span class="badge">RACCOLTA</span><span class="emoji">📱</span>
-      <b>Loghi WhatsApp</b>
-      <p>Loghi delle classi per i gruppi WhatsApp.</p>
+    <button class="card menu" id="loghiBtn">
+      <span class="badge">RACCOLTA</span><span class="emoji">🎨</span>
+      <b>Loghi</b>
+      <p>Loghi per gruppi WhatsApp, Gioco delle Case e altri utilizzi.</p>
     </button>
 
     <button class="card external" data-kind="external" data-key="sostituzioni">
@@ -417,11 +417,39 @@ button{cursor:pointer}
 
 
 
-<div class="sheet" id="loghiWhatsappSheet">
+<div class="sheet" id="loghiSheet">
   <div class="sheetbox">
     <div class="sheethead">
-      <h3>📱 Loghi WhatsApp</h3>
-      <button class="close" data-close="loghiWhatsappSheet">×</button>
+      <h3>🎨 Loghi</h3>
+      <button class="close" data-close="loghiSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item" id="gruppiWhatsappBtn">
+        <span class="emoji">📱</span>
+        <div><b>Gruppi di WhatsApp</b><small>Loghi delle 21 classi</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="loghiGiocoCase" data-link-label="Loghi Gioco delle Case">
+        <span class="emoji">🏆</span>
+        <div><b>Gioco delle Case</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="loghiUtili" data-link-label="Loghi utili">
+        <span class="emoji">🧰</span>
+        <div><b>Loghi utili</b><small>Collegamento da aggiungere</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="gruppiWhatsappSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>📱 Gruppi di WhatsApp</h3>
+      <button class="close" data-close="gruppiWhatsappSheet">×</button>
     </div>
     <div class="menu-list">
       <button class="menu-item submenu-link" data-link-key="logoWhatsapp1A" data-link-label="Logo WhatsApp 1A">
@@ -933,6 +961,8 @@ const LINKS={
   virtualTour:"https://sway.cloud.microsoft/ayBPvXWkKJ779WZC",
   registroAxios:"https://registro.axioscloud.it/Pages/SD/SD_Login.aspx",
   sitoScuola:"https://www.scuolabaricco.edu.it/",
+  loghiGiocoCase:"",
+  loghiUtili:"",
   logoWhatsapp1A:"",
   logoWhatsapp2A:"",
   logoWhatsapp3A:"",
@@ -965,7 +995,7 @@ const GAMES=[
   {key:"attento",name:"ATTENTO A QUELLO CHE DICI!",emoji:"🚫",url:"https://flavionaretti-commits.github.io/attento-a-quello-che-dici/"},
   {key:"magistri",name:"HIC SUNT MAGISTRI!",emoji:"🏫",url:"https://flavionaretti-commits.github.io/hic-sunt-magistri/"},
   {key:"scarabocchio",name:"SCARABOCCHIO!",emoji:"✏️",url:"https://flavionaretti-commits.github.io/scarabocchio/"},
-  {key:"storydice",name:"STORY DICE",emoji:"🎲",url:"https://davebirss.com/free-resources/"},
+  {key:"storydice",name:"STORY DICE",emoji:"🎲",url:"https://davebirss.com/storydice/?fbclid=IwQ0xDSwLzjqdleHRuA2FlbQIxMQABHo7dIVG5OgmaFQLuk7hfY8kgYVQwW7z_GkSz9EJEwkNVvKtidOYRq_d16R_v_aem_Mmzc8nfGbHoTyeELUDUyUQ"},
   {key:"orologioscacchi",name:"OROLOGIO SCACCHI",emoji:"♟️",url:"https://scratch.mit.edu/projects/1296421438"}
 ];
 
@@ -1064,7 +1094,11 @@ document.querySelectorAll('[data-kind]').forEach(btn=>{
 /* SOTTOMENU */
 
 document.getElementById('orarioBtn').onclick=()=>document.getElementById('orarioSheet').classList.add('active');
-document.getElementById('loghiWhatsappBtn').onclick=()=>document.getElementById('loghiWhatsappSheet').classList.add('active');
+document.getElementById('loghiBtn').onclick=()=>document.getElementById('loghiSheet').classList.add('active');
+document.getElementById('gruppiWhatsappBtn').onclick=()=>{
+  document.getElementById('loghiSheet').classList.remove('active');
+  document.getElementById('gruppiWhatsappSheet').classList.add('active');
+};
 document.getElementById('orarioClassiBtn').onclick=()=>{
   document.getElementById('orarioSheet').classList.remove('active');
   document.getElementById('orarioClassiSheet').classList.add('active');
