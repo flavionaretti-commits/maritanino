@@ -1,4 +1,4 @@
-const CACHE_NAME = "maritanino-shell-v3";
+const CACHE_NAME = "maritanino-shell-v4";
 
 const APP_SHELL = [
   "./",
