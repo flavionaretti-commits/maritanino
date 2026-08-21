@@ -1108,8 +1108,19 @@ function beginReorder(card,grid,pointerEvent){
   reorderState.offsetY=pointerEvent.clientY-rect.top;
   suppressNextClick=true;
 
-  try{ card.setPointerCapture(pointerEvent.pointerId); }catch(e){}
+  /* Su iOS evitiamo setPointerCapture: il rilascio viene gestito dai
+     listener globali, più affidabili nella PWA installata. */
+  if(!isIOSDevice()){
+    try{ card.setPointerCapture(pointerEvent.pointerId); }catch(e){}
+  }
   try{ navigator.vibrate?.(25); }catch(e){}
+
+  /* Ultima rete di sicurezza: se WebKit dovesse perdere completamente
+     l'evento di rilascio, dopo 15 secondi il drag viene comunque chiuso. */
+  clearTimeout(reorderState.safetyTimer);
+  reorderState.safetyTimer=setTimeout(()=>{
+    if(reorderState?.active) finishReorder(false);
+  },15000);
 
   showReorderToast("Trascina la tessera nella nuova posizione");
 }
@@ -1136,20 +1147,30 @@ function maybeRepositionSource(x,y){
 function finishReorder(cancelled=false){
   if(!reorderState) return;
 
-  clearTimeout(reorderState.timer);
+  const state=reorderState;
+  reorderState=null;
 
-  if(reorderState.active){
-    reorderState.card.classList.remove('reorder-source');
-    reorderState.ghost?.remove();
-    document.body.classList.remove('reordering');
+  clearTimeout(state.timer);
+  clearTimeout(state.safetyTimer);
 
-    if(!cancelled){
-      saveGridOrder(reorderState.grid,storageKeyForGrid(reorderState.grid));
-      showReorderToast("Ordine salvato su questo dispositivo ✓");
-    }
+  /* Pulizia sempre, anche se iOS ha perso uno degli eventi intermedi. */
+  state.card?.classList.remove('reorder-source');
+  state.ghost?.remove();
+  document.querySelectorAll('.reorder-ghost').forEach(el=>el.remove());
+  document.querySelectorAll('.reorder-source').forEach(el=>el.classList.remove('reorder-source'));
+  document.body.classList.remove('reordering');
+
+  if(state.active && !cancelled){
+    saveGridOrder(state.grid,storageKeyForGrid(state.grid));
+    showReorderToast("Ordine salvato su questo dispositivo ✓");
   }
 
-  reorderState=null;
+  /* Il click sintetico successivo al drag va ignorato solo per poco tempo. */
+  if(state.active){
+    suppressNextClick=true;
+    clearTimeout(finishReorder._clickTimer);
+    finishReorder._clickTimer=setTimeout(()=>{ suppressNextClick=false; },450);
+  }
 }
 
 function installReorder(grid){
@@ -1174,6 +1195,7 @@ function installReorder(grid){
         startY:e.clientY,
         latestEvent:e,
         timer:null,
+        safetyTimer:null,
         ghost:null
       };
 
@@ -1224,6 +1246,44 @@ function installReorder(grid){
 
 installReorder(toolsGrid);
 installReorder(orgGrid);
+
+/* FIX iPhone/iPad:
+   WebKit in alcune circostanze può perdere il pointerup dell'elemento
+   durante un drag. Intercettiamo quindi la fine del gesto anche a livello
+   globale e tramite gli eventi touch nativi. */
+function endReorderFromGlobalEvent(e){
+  if(!reorderState) return;
+
+  if(e?.type==="pointerup" || e?.type==="pointercancel"){
+    if(reorderState.pointerId!==undefined &&
+       e.pointerId!==undefined &&
+       reorderState.pointerId!==e.pointerId) return;
+  }
+
+  finishReorder(e?.type==="pointercancel" || e?.type==="touchcancel");
+}
+
+window.addEventListener('pointerup',endReorderFromGlobalEvent,true);
+window.addEventListener('pointercancel',endReorderFromGlobalEvent,true);
+window.addEventListener('touchend',endReorderFromGlobalEvent,{capture:true,passive:true});
+window.addEventListener('touchcancel',endReorderFromGlobalEvent,{capture:true,passive:true});
+
+/* Se la PWA perde il focus o passa in background durante il trascinamento,
+   ripuliamo comunque lo stato per evitare tessere bloccate sullo schermo. */
+window.addEventListener('blur',()=>{
+  if(reorderState?.active) finishReorder(false);
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden && reorderState?.active) finishReorder(false);
+});
+
+/* Ulteriore recupero: un nuovo tocco mentre un vecchio drag risultasse ancora
+   attivo chiude prima il trascinamento precedente. */
+document.addEventListener('touchstart',()=>{
+  if(reorderState?.active && reorderState.ghost && !document.body.contains(reorderState.ghost)){
+    finishReorder(false);
+  }
+},{capture:true,passive:true});
 
 /* Impedisce che il rilascio dopo un trascinamento apra accidentalmente la tessera. */
 document.addEventListener('click',e=>{
