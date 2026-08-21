@@ -139,6 +139,71 @@ button{cursor:pointer}
 }
 .card.soon{opacity:.70}
 .card.soon .badge{background:color-mix(in srgb,var(--panel) 80%,#777 20%);color:var(--muted)}
+
+/* RIORDINO PERSONALIZZABILE DELLE TESSERE */
+.grid.reorder-enabled .card{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+.card.reorder-source{
+  opacity:.24;
+  transform:scale(.98);
+  border-color:var(--orange);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--orange) 55%,transparent);
+}
+.reorder-ghost{
+  position:fixed;
+  z-index:1000;
+  margin:0;
+  pointer-events:none;
+  opacity:.96;
+  transform:scale(1.035) rotate(.5deg);
+  border-color:var(--orange)!important;
+  box-shadow:0 18px 45px rgba(0,0,0,.28)!important;
+  transition:none!important;
+}
+body.reordering{
+  cursor:grabbing;
+  -webkit-user-select:none;
+  user-select:none;
+}
+body.reordering *{cursor:grabbing!important}
+.reorder-toast{
+  position:fixed;
+  left:50%;
+  bottom:max(20px,calc(env(safe-area-inset-bottom) + 14px));
+  transform:translateX(-50%) translateY(12px);
+  z-index:1200;
+  max-width:min(92vw,460px);
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--ink);
+  color:var(--panel);
+  font-size:.82rem;
+  font-weight:800;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease;
+}
+.reorder-toast.show{
+  opacity:.94;
+  transform:translateX(-50%) translateY(0);
+}
+.reset-order-btn{
+  width:100%;
+  margin-top:12px;
+  border:1px solid color-mix(in srgb,var(--orange) 55%,var(--line));
+  background:var(--orange-soft);
+  color:var(--orange-strong);
+  border-radius:12px;
+  padding:11px 14px;
+  font-weight:850;
+}
+.reset-order-btn:active{transform:translateY(1px)}
+
 .footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:22px;line-height:1.5}
 .footer strong{color:var(--ink)}
 .viewer{display:none;position:fixed;inset:0;z-index:50;background:var(--panel)}
@@ -263,18 +328,6 @@ button{cursor:pointer}
   </div>
 
   <div class="grid tools-grid">
-    <button class="card external" data-kind="external" data-key="registroAxios">
-      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
-      <b>Registro Elettronico AXIOS</b>
-      <p>Accedi al Registro Elettronico AXIOS con le tue credenziali personali.</p>
-    </button>
-
-    <button class="card external" data-kind="external" data-key="sitoScuola">
-      <span class="badge">ESTERNO ↗</span><span class="emoji">🌐</span>
-      <b>Sito della scuola</b>
-      <p>Accedi al sito ufficiale dell’Istituto Comprensivo Baricco.</p>
-    </button>
-
     <button class="card external" data-kind="external" data-key="sostituzioni">
       <span class="badge">🔐 RISERVATO</span><span class="emoji">🔄</span>
       <b>Assenti e sostituzioni</b>
@@ -287,11 +340,18 @@ button{cursor:pointer}
       <p>Apri Google Calendar per prenotare aule e laboratori condivisi.</p>
     </button>
 
-    <button class="card external" data-kind="external" data-key="libriTesto">
-      <span class="badge">🔐 RISERVATO</span><span class="emoji">📖</span>
-      <b>Libri di testo</b>
-      <p>Consulta l’elenco aggiornato dei libri di testo adottati.</p>
+    <button class="card external" data-kind="external" data-key="registroAxios">
+      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
+      <b>Registro Elettronico AXIOS</b>
+      <p>Accedi al Registro Elettronico AXIOS con le tue credenziali personali.</p>
     </button>
+
+    <button class="card external" data-kind="external" data-key="sitoScuola">
+      <span class="badge">ESTERNO ↗</span><span class="emoji">🌐</span>
+      <b>Sito della scuola</b>
+      <p>Accedi al sito ufficiale dell’Istituto Comprensivo Baricco.</p>
+    </button>
+
 
     <button class="card" data-kind="internal" data-key="banchi">
       <span class="badge">APP</span><span class="emoji">🪑</span>
@@ -305,11 +365,6 @@ button{cursor:pointer}
       <p>Giochi per attività condivise e momenti di festa.</p>
     </button>
 
-    <button class="card menu" id="loghiBtn">
-      <span class="badge">RACCOLTA</span><span class="emoji">🎨</span>
-      <b>Loghi</b>
-      <p>Loghi per gruppi WhatsApp, Gioco delle Case e altri utilizzi.</p>
-    </button>
   </div>
 
   <div class="section-title">
@@ -366,6 +421,19 @@ button{cursor:pointer}
       <p>Consulta i principali regolamenti di istituto, degli spazi e delle attività del plesso.</p>
     </button>
 
+    <button class="card external" data-kind="external" data-key="libriTesto">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">📖</span>
+      <b>Libri di testo</b>
+      <p>Consulta l’elenco aggiornato dei libri di testo adottati.</p>
+    </button>
+
+    <button class="card menu" id="loghiBtn">
+      <span class="badge">RACCOLTA</span><span class="emoji">🎨</span>
+      <b>Loghi</b>
+      <p>Loghi per gruppi WhatsApp, Gioco delle Case e altri utilizzi.</p>
+    </button>
+
+
     <button class="card" data-kind="internal" data-key="materiali">
       <span class="badge">SEZIONE</span><span class="emoji">🗂️</span>
       <b>Materiali</b>
@@ -415,7 +483,7 @@ button{cursor:pointer}
   </div>
 </div>
 
-
+<div class="reorder-toast" id="reorderToast" role="status" aria-live="polite"></div>
 
 <div class="sheet" id="loghiSheet">
   <div class="sheetbox">
@@ -722,7 +790,7 @@ button{cursor:pointer}
     <div class="menu-list">
       <button class="menu-item submenu-link" data-link-key="giocoCaseApp" data-link-label="APP segnapunti">
         <span class="emoji">📊</span>
-        <div><b>APP segnapunti</b><small>PWA · GitHub Pages</small></div>
+        <div><b>APP segnapunti</b><small>Prossimamente</small></div>
         <span class="menu-arrow">›</span>
       </button>
 
@@ -763,6 +831,8 @@ button{cursor:pointer}
     <p><strong>Collegamenti</strong>: su Android e PC sezioni, strumenti e giochi si aprono in una nuova scheda. Su iPhone/iPad installato come app si aprono nella stessa vista per evitare una limitazione di iOS; il comando Indietro riporta a MARITANINO.</p>
     <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni.</p>
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
+    <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa un secondo, poi trascinala nella posizione desiderata. STRUMENTI e ORGANIZZAZIONE si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
+    <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
     <div class="info-credit">
       <strong>Sviluppata da prof. Flavio Naretti</strong><br>
@@ -814,7 +884,7 @@ const LINKS={
   regolamentoPodcastIpad:"",
   regolamentoFotocopie:"",
   materiali:"",
-  giocoCaseApp:"https://flavionaretti-commits.github.io/gioco-delle-case/",
+  giocoCaseApp:"",
   giocoCaseCompleto:"https://drive.google.com/file/d/1PCT5-ze8w8abjyNAE_2gnlDzK-b978lJ/view?usp=sharing",
   giocoCaseBreve:"https://drive.google.com/file/d/11FNmlez2HIaxXGDI0R2RcLTkbtbj2wWJ/view?usp=sharing",
   moduloInfortuni:"https://drive.google.com/file/d/1cvDNbcGijkxxg0eSBY0_e9XowqQZijLg/view?usp=sharing",
@@ -839,7 +909,7 @@ const GAMES=[
   {key:"attento",name:"ATTENTO A QUELLO CHE DICI!",emoji:"🚫",url:"https://flavionaretti-commits.github.io/attento-a-quello-che-dici/"},
   {key:"magistri",name:"HIC SUNT MAGISTRI!",emoji:"🏫",url:"https://flavionaretti-commits.github.io/hic-sunt-magistri/"},
   {key:"scarabocchio",name:"SCARABOCCHIO!",emoji:"✏️",url:"https://flavionaretti-commits.github.io/scarabocchio/"},
-  {key:"storydice",name:"STORY DICE",emoji:"🎲",url:"https://flavionaretti-commits.github.io/storydice/"},
+  {key:"storydice",name:"STORY DICE",emoji:"🎲",url:"https://davebirss.com/storydice/?fbclid=IwQ0xDSwLzjqdleHRuA2FlbQIxMQABHo7dIVG5OgmaFQLuk7hfY8kgYVQwW7z_GkSz9EJEwkNVvKtidOYRq_d16R_v_aem_Mmzc8nfGbHoTyeELUDUyUQ"},
   {key:"orologioscacchi",name:"OROLOGIO SCACCHI",emoji:"♟️",url:"https://scratch.mit.edu/projects/1296421438"}
 ];
 
@@ -896,6 +966,7 @@ themeBtn.onclick=()=>{
   const next=document.documentElement.dataset.theme==="dark" ? "light" : "dark";
   applyTheme(next);
 };
+
 function missing(label){
   alert(`Il collegamento “${label}” non è ancora stato inserito nella configurazione di MARITANINO.`);
 }
@@ -933,6 +1004,266 @@ document.querySelectorAll('[data-kind]').forEach(btn=>{
     openInNewTab(label,LINKS[key]);
   });
 });
+
+/* ORDINE PERSONALIZZABILE DELLE TESSERE
+   Pressione lunga -> trascina -> salvataggio locale sul dispositivo. */
+const REORDER_STORAGE={
+  tools:"maritanino-order-tools-v1",
+  org:"maritanino-order-org-v1"
+};
+const LONG_PRESS_MS=700;
+const MOVE_CANCEL_PX=12;
+const toolsGrid=document.querySelector('.tools-grid');
+const orgGrid=document.querySelector('.org-grid');
+const reorderToast=document.getElementById('reorderToast');
+
+function cardSortId(card){
+  return card.id || card.dataset.key || card.querySelector('b')?.textContent.trim() || "";
+}
+
+function gridCards(grid){
+  return [...grid.children].filter(el=>el.classList.contains('card'));
+}
+
+function currentOrder(grid){
+  return gridCards(grid).map(cardSortId).filter(Boolean);
+}
+
+const DEFAULT_ORDER={
+  tools:currentOrder(toolsGrid),
+  org:currentOrder(orgGrid)
+};
+
+function applySavedOrder(grid,storageKey){
+  let saved=[];
+  try{
+    saved=JSON.parse(localStorage.getItem(storageKey) || "[]");
+  }catch(e){ saved=[]; }
+
+  if(!Array.isArray(saved) || !saved.length) return;
+
+  const cards=gridCards(grid);
+  const byId=new Map(cards.map(card=>[cardSortId(card),card]));
+  const used=new Set();
+
+  saved.forEach(id=>{
+    const card=byId.get(id);
+    if(card){
+      grid.appendChild(card);
+      used.add(id);
+    }
+  });
+
+  /* Eventuali nuove tessere introdotte da un aggiornamento restano disponibili
+     e vengono aggiunte in fondo senza perdere l'ordine personalizzato esistente. */
+  cards.forEach(card=>{
+    const id=cardSortId(card);
+    if(!used.has(id)) grid.appendChild(card);
+  });
+}
+
+function saveGridOrder(grid,storageKey){
+  try{
+    localStorage.setItem(storageKey,JSON.stringify(currentOrder(grid)));
+  }catch(e){}
+}
+
+function showReorderToast(text,delay=1400){
+  if(!reorderToast) return;
+  reorderToast.textContent=text;
+  reorderToast.classList.add('show');
+  clearTimeout(showReorderToast._timer);
+  showReorderToast._timer=setTimeout(()=>reorderToast.classList.remove('show'),delay);
+}
+
+applySavedOrder(toolsGrid,REORDER_STORAGE.tools);
+applySavedOrder(orgGrid,REORDER_STORAGE.org);
+
+let reorderState=null;
+let suppressNextClick=false;
+
+function storageKeyForGrid(grid){
+  return grid===toolsGrid ? REORDER_STORAGE.tools : REORDER_STORAGE.org;
+}
+
+function beginReorder(card,grid,pointerEvent){
+  if(reorderState?.active) return;
+
+  const rect=card.getBoundingClientRect();
+  const ghost=card.cloneNode(true);
+  ghost.removeAttribute('id');
+  ghost.classList.add('reorder-ghost');
+  ghost.style.width=`${rect.width}px`;
+  ghost.style.height=`${rect.height}px`;
+  ghost.style.left=`${rect.left}px`;
+  ghost.style.top=`${rect.top}px`;
+  document.body.appendChild(ghost);
+
+  card.classList.add('reorder-source');
+  document.body.classList.add('reordering');
+
+  reorderState.active=true;
+  reorderState.ghost=ghost;
+  reorderState.offsetX=pointerEvent.clientX-rect.left;
+  reorderState.offsetY=pointerEvent.clientY-rect.top;
+  suppressNextClick=true;
+
+  try{ card.setPointerCapture(pointerEvent.pointerId); }catch(e){}
+  try{ navigator.vibrate?.(25); }catch(e){}
+
+  showReorderToast("Trascina la tessera nella nuova posizione");
+}
+
+function moveGhost(x,y){
+  if(!reorderState?.ghost) return;
+  reorderState.ghost.style.left=`${x-reorderState.offsetX}px`;
+  reorderState.ghost.style.top=`${y-reorderState.offsetY}px`;
+}
+
+function maybeRepositionSource(x,y){
+  const {card,grid}=reorderState;
+  const target=document.elementFromPoint(x,y)?.closest('.card');
+  if(!target || target===card || target.parentElement!==grid) return;
+
+  const r=target.getBoundingClientRect();
+  const sameRow=Math.abs(y-(r.top+r.height/2)) < r.height*.42;
+  const before = y < r.top+r.height/2 || (sameRow && x < r.left+r.width/2);
+
+  if(before) grid.insertBefore(card,target);
+  else grid.insertBefore(card,target.nextSibling);
+}
+
+function finishReorder(cancelled=false){
+  if(!reorderState) return;
+
+  clearTimeout(reorderState.timer);
+
+  if(reorderState.active){
+    reorderState.card.classList.remove('reorder-source');
+    reorderState.ghost?.remove();
+    document.body.classList.remove('reordering');
+
+    if(!cancelled){
+      saveGridOrder(reorderState.grid,storageKeyForGrid(reorderState.grid));
+      showReorderToast("Ordine salvato su questo dispositivo ✓");
+    }
+  }
+
+  reorderState=null;
+}
+
+function installReorder(grid){
+  if(!grid) return;
+  grid.classList.add('reorder-enabled');
+
+  gridCards(grid).forEach(card=>{
+    card.addEventListener('contextmenu',e=>{
+      if(reorderState) e.preventDefault();
+    });
+
+    card.addEventListener('pointerdown',e=>{
+      if(e.button!==undefined && e.button!==0) return;
+      if(reorderState) return;
+
+      reorderState={
+        active:false,
+        card,
+        grid,
+        pointerId:e.pointerId,
+        startX:e.clientX,
+        startY:e.clientY,
+        latestEvent:e,
+        timer:null,
+        ghost:null
+      };
+
+      reorderState.timer=setTimeout(()=>{
+        if(reorderState && reorderState.card===card && !reorderState.active){
+          beginReorder(card,grid,reorderState.latestEvent);
+          moveGhost(reorderState.latestEvent.clientX,reorderState.latestEvent.clientY);
+        }
+      },LONG_PRESS_MS);
+    },{passive:true});
+
+    card.addEventListener('pointermove',e=>{
+      if(!reorderState || reorderState.card!==card || reorderState.pointerId!==e.pointerId) return;
+
+      reorderState.latestEvent=e;
+      const dx=e.clientX-reorderState.startX;
+      const dy=e.clientY-reorderState.startY;
+
+      if(!reorderState.active){
+        if(Math.hypot(dx,dy)>MOVE_CANCEL_PX){
+          clearTimeout(reorderState.timer);
+          reorderState=null;
+        }
+        return;
+      }
+
+      e.preventDefault();
+      moveGhost(e.clientX,e.clientY);
+      maybeRepositionSource(e.clientX,e.clientY);
+
+      /* Auto-scroll leggero vicino ai bordi dello schermo. */
+      const edge=72;
+      if(e.clientY<edge) window.scrollBy(0,-8);
+      else if(e.clientY>window.innerHeight-edge) window.scrollBy(0,8);
+    },{passive:false});
+
+    card.addEventListener('pointerup',e=>{
+      if(!reorderState || reorderState.card!==card || reorderState.pointerId!==e.pointerId) return;
+      finishReorder(false);
+    });
+
+    card.addEventListener('pointercancel',e=>{
+      if(!reorderState || reorderState.card!==card || reorderState.pointerId!==e.pointerId) return;
+      finishReorder(true);
+    });
+  });
+}
+
+installReorder(toolsGrid);
+installReorder(orgGrid);
+
+/* Impedisce che il rilascio dopo un trascinamento apra accidentalmente la tessera. */
+document.addEventListener('click',e=>{
+  if(!suppressNextClick) return;
+  if(e.target.closest('.card')){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    suppressNextClick=false;
+  }
+},true);
+
+/* Durante il trascinamento blocchiamo lo scroll touch, ma solo dopo
+   l'attivazione della pressione lunga: lo scroll normale resta quindi libero. */
+document.addEventListener('touchmove',e=>{
+  if(reorderState?.active) e.preventDefault();
+},{passive:false});
+
+document.getElementById('resetOrderBtn').onclick=()=>{
+  try{
+    localStorage.removeItem(REORDER_STORAGE.tools);
+    localStorage.removeItem(REORDER_STORAGE.org);
+  }catch(e){}
+
+  const restore=(grid,ids)=>{
+    const cards=gridCards(grid);
+    const byId=new Map(cards.map(card=>[cardSortId(card),card]));
+    ids.forEach(id=>{
+      const card=byId.get(id);
+      if(card) grid.appendChild(card);
+    });
+    cards.forEach(card=>{
+      if(!ids.includes(cardSortId(card))) grid.appendChild(card);
+    });
+  };
+
+  restore(toolsGrid,DEFAULT_ORDER.tools);
+  restore(orgGrid,DEFAULT_ORDER.org);
+  document.getElementById('infoSheet').classList.remove('active');
+  showReorderToast("Ordine originale ripristinato ✓",1700);
+};
 
 /* SOTTOMENU */
 
