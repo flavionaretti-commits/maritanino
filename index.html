@@ -146,36 +146,60 @@ button{cursor:pointer}
   user-select:none;
   -webkit-touch-callout:none;
 }
-.card.reorder-source{
-  opacity:.24;
-  transform:scale(.98);
-  border-color:var(--orange);
-  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--orange) 55%,transparent);
-}
-.reorder-ghost{
-  position:fixed;
-  z-index:1000;
-  margin:0;
-  pointer-events:none;
-  opacity:.96;
-  transform:scale(1.035) rotate(.5deg);
+.card.move-selected{
   border-color:var(--orange)!important;
-  box-shadow:0 18px 45px rgba(0,0,0,.28)!important;
-  transition:none!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--orange) 28%,transparent),0 12px 30px rgba(0,0,0,.16)!important;
+  transform:scale(1.018);
 }
-body.reordering{
-  cursor:grabbing;
-  -webkit-user-select:none;
-  user-select:none;
-  overscroll-behavior:none;
+.card.move-target{
+  outline:2px dashed color-mix(in srgb,var(--orange) 65%,var(--line));
+  outline-offset:-5px;
 }
-body.reordering *{cursor:grabbing!important}
+body.move-mode .card{cursor:pointer}
+.move-banner{
+  position:fixed;
+  left:50%;
+  bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));
+  transform:translateX(-50%) translateY(14px);
+  z-index:1200;
+  width:min(92vw,560px);
+  background:var(--ink);
+  color:var(--panel);
+  border-radius:16px;
+  padding:11px 14px;
+  box-shadow:0 14px 38px rgba(0,0,0,.28);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease;
+}
+.move-banner.show{
+  opacity:.97;
+  transform:translateX(-50%) translateY(0);
+  pointer-events:auto;
+}
+.move-banner .move-text{
+  flex:1;
+  font-size:.82rem;
+  line-height:1.35;
+  font-weight:800;
+}
+.move-banner button{
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.10);
+  color:inherit;
+  border-radius:10px;
+  padding:8px 10px;
+  font-weight:850;
+}
 .reorder-toast{
   position:fixed;
   left:50%;
   bottom:max(20px,calc(env(safe-area-inset-bottom) + 14px));
   transform:translateX(-50%) translateY(12px);
-  z-index:1200;
+  z-index:1250;
   max-width:min(92vw,460px);
   padding:10px 14px;
   border-radius:999px;
@@ -484,6 +508,10 @@ body.reordering *{cursor:grabbing!important}
   </div>
 </div>
 
+<div class="move-banner" id="moveBanner" role="status" aria-live="polite">
+  <div class="move-text" id="moveText">Scegli dove spostare la tessera.</div>
+  <button id="cancelMoveBtn" type="button">Annulla</button>
+</div>
 <div class="reorder-toast" id="reorderToast" role="status" aria-live="polite"></div>
 
 <div class="sheet" id="loghiSheet">
@@ -832,7 +860,7 @@ body.reordering *{cursor:grabbing!important}
     <p><strong>Collegamenti</strong>: su Android e PC sezioni, strumenti e giochi si aprono in una nuova scheda. Su iPhone/iPad installato come app si aprono nella stessa vista per evitare una limitazione di iOS; il comando Indietro riporta a MARITANINO.</p>
     <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni.</p>
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
-    <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa un secondo, poi trascinala nella posizione desiderata. STRUMENTI e ORGANIZZAZIONE si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
+    <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI e ORGANIZZAZIONE si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
     <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
     <div class="info-credit">
@@ -1007,29 +1035,30 @@ document.querySelectorAll('[data-kind]').forEach(btn=>{
 });
 
 /* ORDINE PERSONALIZZABILE DELLE TESSERE
-   Pressione lunga -> trascina -> salvataggio locale sul dispositivo. */
+   Pressione lunga -> selezione -> tocco sulla posizione di destinazione. */
 const REORDER_STORAGE={
-  tools:"maritanino-order-tools-v1",
-  org:"maritanino-order-org-v1"
+  tools:"maritanino-order-tools-v2",
+  org:"maritanino-order-org-v2"
 };
 const LONG_PRESS_MS=550;
-const MOVE_CANCEL_PX=12;
+const MOVE_CANCEL_PX=14;
+
 const toolsGrid=document.querySelector('.tools-grid');
 const orgGrid=document.querySelector('.org-grid');
 const reorderToast=document.getElementById('reorderToast');
+const moveBanner=document.getElementById('moveBanner');
+const moveText=document.getElementById('moveText');
+const cancelMoveBtn=document.getElementById('cancelMoveBtn');
 
 function cardSortId(card){
   return card.id || card.dataset.key || card.querySelector('b')?.textContent.trim() || "";
 }
-
 function gridCards(grid){
   return [...grid.children].filter(el=>el.classList.contains('card'));
 }
-
 function currentOrder(grid){
   return gridCards(grid).map(cardSortId).filter(Boolean);
 }
-
 const DEFAULT_ORDER={
   tools:currentOrder(toolsGrid),
   org:currentOrder(orgGrid)
@@ -1037,26 +1066,15 @@ const DEFAULT_ORDER={
 
 function applySavedOrder(grid,storageKey){
   let saved=[];
-  try{
-    saved=JSON.parse(localStorage.getItem(storageKey) || "[]");
-  }catch(e){ saved=[]; }
-
+  try{ saved=JSON.parse(localStorage.getItem(storageKey) || "[]"); }catch(e){ saved=[]; }
   if(!Array.isArray(saved) || !saved.length) return;
-
   const cards=gridCards(grid);
   const byId=new Map(cards.map(card=>[cardSortId(card),card]));
   const used=new Set();
-
   saved.forEach(id=>{
     const card=byId.get(id);
-    if(card){
-      grid.appendChild(card);
-      used.add(id);
-    }
+    if(card){ grid.appendChild(card); used.add(id); }
   });
-
-  /* Eventuali nuove tessere introdotte da un aggiornamento restano disponibili
-     e vengono aggiunte in fondo senza perdere l'ordine personalizzato esistente. */
   cards.forEach(card=>{
     const id=cardSortId(card);
     if(!used.has(id)) grid.appendChild(card);
@@ -1064,9 +1082,7 @@ function applySavedOrder(grid,storageKey){
 }
 
 function saveGridOrder(grid,storageKey){
-  try{
-    localStorage.setItem(storageKey,JSON.stringify(currentOrder(grid)));
-  }catch(e){}
+  try{ localStorage.setItem(storageKey,JSON.stringify(currentOrder(grid))); }catch(e){}
 }
 
 function showReorderToast(text,delay=1400){
@@ -1077,144 +1093,69 @@ function showReorderToast(text,delay=1400){
   showReorderToast._timer=setTimeout(()=>reorderToast.classList.remove('show'),delay);
 }
 
-applySavedOrder(toolsGrid,REORDER_STORAGE.tools);
-applySavedOrder(orgGrid,REORDER_STORAGE.org);
-
-let reorderState=null;
-let suppressNextClick=false;
-
 function storageKeyForGrid(grid){
   return grid===toolsGrid ? REORDER_STORAGE.tools : REORDER_STORAGE.org;
 }
 
-function beginReorder(card,grid,pointerEvent){
-  if(reorderState?.active) return;
-
-  const rect=card.getBoundingClientRect();
-  const ghost=card.cloneNode(true);
-  ghost.removeAttribute('id');
-  ghost.classList.add('reorder-ghost');
-  ghost.style.width=`${rect.width}px`;
-  ghost.style.height=`${rect.height}px`;
-  ghost.style.left=`${rect.left}px`;
-  ghost.style.top=`${rect.top}px`;
-  document.body.appendChild(ghost);
-
-  card.classList.add('reorder-source');
-  document.body.classList.add('reordering');
-
-  reorderState.active=true;
-  reorderState.ghost=ghost;
-  reorderState.offsetX=pointerEvent.clientX-rect.left;
-  reorderState.offsetY=pointerEvent.clientY-rect.top;
-  suppressNextClick=true;
-
-  /* Su iOS evitiamo setPointerCapture: il rilascio viene gestito dai
-     listener globali, più affidabili nella PWA installata. */
-  if(!isIOSDevice()){
-    try{ card.setPointerCapture(pointerEvent.pointerId); }catch(e){}
-  }
-  try{ navigator.vibrate?.(25); }catch(e){}
-
-  /* Ultima rete di sicurezza: se WebKit dovesse perdere completamente
-     l'evento di rilascio, dopo 15 secondi il drag viene comunque chiuso. */
-  clearTimeout(reorderState.safetyTimer);
-  reorderState.safetyTimer=setTimeout(()=>{
-    if(reorderState?.active) finishReorder(false);
-  },15000);
-
-  showReorderToast("Trascina la tessera nella nuova posizione");
+function migrateOldOrder(newKey,oldKey){
+  try{
+    if(localStorage.getItem(newKey)) return;
+    const oldValue=localStorage.getItem(oldKey);
+    if(oldValue) localStorage.setItem(newKey,oldValue);
+  }catch(e){}
 }
+migrateOldOrder(REORDER_STORAGE.tools,"maritanino-order-tools-v1");
+migrateOldOrder(REORDER_STORAGE.org,"maritanino-order-org-v1");
 
-function moveGhost(x,y){
-  if(!reorderState?.ghost) return;
-  reorderState.ghost.style.left=`${x-reorderState.offsetX}px`;
-  reorderState.ghost.style.top=`${y-reorderState.offsetY}px`;
-}
+applySavedOrder(toolsGrid,REORDER_STORAGE.tools);
+applySavedOrder(orgGrid,REORDER_STORAGE.org);
 
-function maybeRepositionSource(x,y){
-  const {card,grid}=reorderState;
+let moveState=null;
+let pressState=null;
+let suppressClickUntil=0;
 
-  /* Su touch è più fluido trovare la tessera il cui centro è più vicino
-     al dito, invece di dipendere da elementFromPoint. */
-  const others=gridCards(grid).filter(el=>el!==card);
-  if(!others.length) return;
-
-  let nearest=null;
-  let nearestDist=Infinity;
-
-  others.forEach(el=>{
-    const r=el.getBoundingClientRect();
-    const cx=r.left+r.width/2;
-    const cy=r.top+r.height/2;
-    const dx=x-cx;
-    const dy=y-cy;
-
-    /* Il peso verticale leggermente maggiore aiuta nelle griglie a 2 colonne
-       tipiche dell'iPhone. */
-    const dist=dx*dx + (dy*1.18)*(dy*1.18);
-
-    if(dist<nearestDist){
-      nearestDist=dist;
-      nearest={el,r,cx,cy};
-    }
+function clearMoveTargets(){
+  document.querySelectorAll('.move-selected,.move-target').forEach(el=>{
+    el.classList.remove('move-selected','move-target');
   });
-
-  if(!nearest) return;
-
-  const {el,r,cx,cy}=nearest;
-
-  /* Decide prima/dopo considerando prima la riga e poi la colonna. */
-  const verticalDelta=y-cy;
-  const horizontalDelta=x-cx;
-  let before;
-
-  if(Math.abs(verticalDelta) > r.height*0.28){
-    before=verticalDelta<0;
-  }else{
-    before=horizontalDelta<0;
-  }
-
-  const desiredBefore = before ? el : el.nextSibling;
-
-  /* Evita reinserimenti inutili: meno layout/reflow = drag più fluido. */
-  if(before){
-    if(card.nextSibling===el) return;
-    grid.insertBefore(card,el);
-  }else{
-    if(el.nextSibling===card) return;
-    grid.insertBefore(card,desiredBefore);
-  }
 }
 
-function finishReorder(cancelled=false){
-  if(!reorderState) return;
+function cancelMove(showMessage=false){
+  clearMoveTargets();
+  moveState=null;
+  document.body.classList.remove('move-mode');
+  moveBanner?.classList.remove('show');
+  if(showMessage) showReorderToast("Spostamento annullato");
+}
 
-  const state=reorderState;
-  reorderState=null;
+function beginMoveMode(card,grid){
+  cancelMove(false);
+  moveState={card,grid};
+  card.classList.add('move-selected');
+  gridCards(grid).forEach(el=>{ if(el!==card) el.classList.add('move-target'); });
+  document.body.classList.add('move-mode');
 
-  clearTimeout(state.timer);
-  clearTimeout(state.safetyTimer);
-  if(state.raf) cancelAnimationFrame(state.raf);
+  const label=card.querySelector('b')?.textContent.trim() || "Tessera";
+  if(moveText) moveText.textContent=`Sposta “${label}”: tocca la tessera davanti alla quale inserirla.`;
+  moveBanner?.classList.add('show');
 
-  /* Pulizia sempre, anche se iOS ha perso uno degli eventi intermedi. */
-  state.card?.classList.remove('reorder-source');
-  state.ghost?.remove();
-  document.querySelectorAll('.reorder-ghost').forEach(el=>el.remove());
-  document.querySelectorAll('.reorder-source').forEach(el=>el.classList.remove('reorder-source'));
-  document.body.classList.remove('reordering');
+  suppressClickUntil=Date.now()+700;
+  try{ navigator.vibrate?.(25); }catch(e){}
+}
 
-  if(state.active && !cancelled){
-    saveGridOrder(state.grid,storageKeyForGrid(state.grid));
-    showReorderToast("Ordine salvato su questo dispositivo ✓");
-  }
+function moveBeforeTarget(target){
+  if(!moveState) return false;
+  const {card,grid}=moveState;
+  if(target===card || target.parentElement!==grid) return false;
 
-  /* Il click sintetico successivo al drag va ignorato solo per poco tempo. */
-  if(state.active){
-    suppressNextClick=true;
-    clearTimeout(finishReorder._clickTimer);
-    finishReorder._clickTimer=setTimeout(()=>{ suppressNextClick=false; },450);
-  }
+  grid.insertBefore(card,target);
+  saveGridOrder(grid,storageKeyForGrid(grid));
+
+  const label=card.querySelector('b')?.textContent.trim() || "Tessera";
+  cancelMove(false);
+  showReorderToast(`“${label}” spostata ✓`,1500);
+  suppressClickUntil=Date.now()+450;
+  return true;
 }
 
 function installReorder(grid){
@@ -1223,151 +1164,105 @@ function installReorder(grid){
 
   gridCards(grid).forEach(card=>{
     card.addEventListener('contextmenu',e=>{
-      if(reorderState) e.preventDefault();
+      if(pressState || moveState) e.preventDefault();
     });
 
     card.addEventListener('pointerdown',e=>{
       if(e.button!==undefined && e.button!==0) return;
-      if(reorderState) return;
+      if(moveState) return;
 
-      reorderState={
-        active:false,
-        card,
-        grid,
-        pointerId:e.pointerId,
-        startX:e.clientX,
-        startY:e.clientY,
-        latestEvent:e,
-        timer:null,
-        safetyTimer:null,
-        ghost:null,
-        raf:null,
-        pendingX:e.clientX,
-        pendingY:e.clientY
+      const state={
+        card,grid,pointerId:e.pointerId,
+        startX:e.clientX,startY:e.clientY,
+        moved:false,timer:null
       };
+      pressState=state;
 
-      reorderState.timer=setTimeout(()=>{
-        if(reorderState && reorderState.card===card && !reorderState.active){
-          beginReorder(card,grid,reorderState.latestEvent);
-          moveGhost(reorderState.latestEvent.clientX,reorderState.latestEvent.clientY);
-        }
+      state.timer=setTimeout(()=>{
+        if(pressState!==state || state.moved) return;
+        pressState=null;
+        beginMoveMode(card,grid);
       },LONG_PRESS_MS);
     },{passive:true});
 
     card.addEventListener('pointermove',e=>{
-      if(!reorderState || reorderState.card!==card || reorderState.pointerId!==e.pointerId) return;
-
-      reorderState.latestEvent=e;
-      const dx=e.clientX-reorderState.startX;
-      const dy=e.clientY-reorderState.startY;
-
-      if(!reorderState.active){
-        if(Math.hypot(dx,dy)>MOVE_CANCEL_PX){
-          clearTimeout(reorderState.timer);
-          reorderState=null;
-        }
-        return;
+      if(!pressState || pressState.card!==card || pressState.pointerId!==e.pointerId) return;
+      const dx=e.clientX-pressState.startX;
+      const dy=e.clientY-pressState.startY;
+      if(Math.hypot(dx,dy)>MOVE_CANCEL_PX){
+        pressState.moved=true;
+        clearTimeout(pressState.timer);
+        pressState=null;
       }
+    },{passive:true});
 
-      e.preventDefault();
-
-      reorderState.pendingX=e.clientX;
-      reorderState.pendingY=e.clientY;
-
-      if(!reorderState.raf){
-        reorderState.raf=requestAnimationFrame(()=>{
-          if(!reorderState?.active) return;
-
-          const x=reorderState.pendingX;
-          const y=reorderState.pendingY;
-
-          moveGhost(x,y);
-          maybeRepositionSource(x,y);
-
-          /* Auto-scroll più morbido vicino ai bordi. */
-          const edge=86;
-          if(y<edge) window.scrollBy(0,-5);
-          else if(y>window.innerHeight-edge) window.scrollBy(0,5);
-
-          reorderState.raf=null;
-        });
-      }
-    },{passive:false});
-
-    card.addEventListener('pointerup',e=>{
-      if(!reorderState || reorderState.card!==card || reorderState.pointerId!==e.pointerId) return;
-      finishReorder(false);
-    });
-
-    card.addEventListener('pointercancel',e=>{
-      if(!reorderState || reorderState.card!==card || reorderState.pointerId!==e.pointerId) return;
-      finishReorder(true);
-    });
+    const endPress=()=>{
+      if(!pressState || pressState.card!==card) return;
+      clearTimeout(pressState.timer);
+      pressState=null;
+    };
+    card.addEventListener('pointerup',endPress);
+    card.addEventListener('pointercancel',endPress);
   });
 }
 
 installReorder(toolsGrid);
 installReorder(orgGrid);
 
-/* FIX iPhone/iPad:
-   WebKit in alcune circostanze può perdere il pointerup dell'elemento
-   durante un drag. Intercettiamo quindi la fine del gesto anche a livello
-   globale e tramite gli eventi touch nativi. */
-function endReorderFromGlobalEvent(e){
-  if(!reorderState) return;
-
-  if(e?.type==="pointerup" || e?.type==="pointercancel"){
-    if(reorderState.pointerId!==undefined &&
-       e.pointerId!==undefined &&
-       reorderState.pointerId!==e.pointerId) return;
-  }
-
-  finishReorder(e?.type==="pointercancel" || e?.type==="touchcancel");
-}
-
-window.addEventListener('pointerup',endReorderFromGlobalEvent,true);
-window.addEventListener('pointercancel',endReorderFromGlobalEvent,true);
-window.addEventListener('touchend',endReorderFromGlobalEvent,{capture:true,passive:true});
-window.addEventListener('touchcancel',endReorderFromGlobalEvent,{capture:true,passive:true});
-
-/* Se la PWA perde il focus o passa in background durante il trascinamento,
-   ripuliamo comunque lo stato per evitare tessere bloccate sullo schermo. */
-window.addEventListener('blur',()=>{
-  if(reorderState?.active) finishReorder(false);
-});
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden && reorderState?.active) finishReorder(false);
-});
-
-/* Ulteriore recupero: un nuovo tocco mentre un vecchio drag risultasse ancora
-   attivo chiude prima il trascinamento precedente. */
-document.addEventListener('touchstart',()=>{
-  if(reorderState?.active && reorderState.ghost && !document.body.contains(reorderState.ghost)){
-    finishReorder(false);
-  }
-},{capture:true,passive:true});
-
-/* Impedisce che il rilascio dopo un trascinamento apra accidentalmente la tessera. */
 document.addEventListener('click',e=>{
-  if(!suppressNextClick) return;
-  if(e.target.closest('.card')){
+  const card=e.target.closest('.card');
+  if(!card) return;
+
+  if(moveState){
     e.preventDefault();
     e.stopImmediatePropagation();
-    suppressNextClick=false;
+
+    if(card.parentElement!==moveState.grid){
+      showReorderToast("Puoi spostarla solo all’interno della stessa sezione",1700);
+      return;
+    }
+    if(card===moveState.card){
+      cancelMove(true);
+      return;
+    }
+    moveBeforeTarget(card);
+    return;
+  }
+
+  if(Date.now()<suppressClickUntil){
+    e.preventDefault();
+    e.stopImmediatePropagation();
   }
 },true);
 
-/* Durante il trascinamento blocchiamo lo scroll touch, ma solo dopo
-   l'attivazione della pressione lunga: lo scroll normale resta quindi libero. */
-document.addEventListener('touchmove',e=>{
-  if(reorderState?.active) e.preventDefault();
-},{passive:false});
+cancelMoveBtn?.addEventListener('click',e=>{
+  e.preventDefault();
+  e.stopPropagation();
+  cancelMove(true);
+});
+
+window.addEventListener('blur',()=>{
+  if(pressState){
+    clearTimeout(pressState.timer);
+    pressState=null;
+  }
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden && pressState){
+    clearTimeout(pressState.timer);
+    pressState=null;
+  }
+});
 
 document.getElementById('resetOrderBtn').onclick=()=>{
   try{
     localStorage.removeItem(REORDER_STORAGE.tools);
     localStorage.removeItem(REORDER_STORAGE.org);
+    localStorage.removeItem("maritanino-order-tools-v1");
+    localStorage.removeItem("maritanino-order-org-v1");
   }catch(e){}
+
+  cancelMove(false);
 
   const restore=(grid,ids)=>{
     const cards=gridCards(grid);
