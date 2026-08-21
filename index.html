@@ -359,10 +359,10 @@ body.move-mode .card{cursor:pointer}
       <p>Apri il documento condiviso su GoodNotes per assenze e sostituzioni del plesso.</p>
     </button>
 
-    <button class="card external" data-kind="external" data-key="prenotazioni">
-      <span class="badge">GOOGLE CALENDAR ↗</span><span class="emoji">🏫</span>
+    <button class="card menu" data-key="prenotazioni" data-menu="prenotazioniSheet">
+      <span class="badge">GOOGLE CALENDAR</span><span class="emoji">🏫</span>
       <b>Prenota aule e laboratori</b>
-      <p>Apri Google Calendar per prenotare aule e laboratori condivisi.</p>
+      <p>Apri le prenotazioni oppure aggiungi i calendari condivisi delle aule.</p>
     </button>
 
     <button class="card external" data-kind="external" data-key="registroAxios">
@@ -513,6 +513,129 @@ body.move-mode .card{cursor:pointer}
   <button id="cancelMoveBtn" type="button">Annulla</button>
 </div>
 <div class="reorder-toast" id="reorderToast" role="status" aria-live="polite"></div>
+
+<div class="sheet" id="prenotazioniSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🏫 Prenota aule e laboratori</h3>
+      <button class="close" data-close="prenotazioniSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="prenotazioni" data-link-label="Calendario prenotazioni">
+        <span class="emoji">🗓️</span>
+        <div><b>Apri calendario prenotazioni</b><small>Prenota aule e laboratori su Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item" id="aggiungiCalendariBtn">
+        <span class="emoji">➕</span>
+        <div><b>Aggiungi i calendari di prenotazione</b><small>15 calendari condivisi di aule, laboratori e spazi</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+    <div class="note">Se un calendario non è ancora visibile nel tuo Google Calendar, aprilo dall’elenco e conferma l’aggiunta con l’account autorizzato.</div>
+  </div>
+</div>
+
+<div class="sheet" id="calendariPrenotazioneSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>➕ Aggiungi i calendari di prenotazione</h3>
+      <button class="close" data-close="calendariPrenotazioneSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="calAulaRiunioni" data-link-label="AULA RIUNIONI">
+        <span class="emoji">📅</span>
+        <div><b>AULA RIUNIONI</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calAulaVerde" data-link-label="AULA VERDE">
+        <span class="emoji">📅</span>
+        <div><b>AULA VERDE</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calBiblioteca" data-link-label="BIBLIOTECA">
+        <span class="emoji">📅</span>
+        <div><b>BIBLIOTECA</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calIpad" data-link-label="I-PAD">
+        <span class="emoji">📅</span>
+        <div><b>I-PAD</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calInformatica" data-link-label="INFORMATICA">
+        <span class="emoji">📅</span>
+        <div><b>INFORMATICA</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calLingue" data-link-label="LINGUE">
+        <span class="emoji">📅</span>
+        <div><b>LINGUE</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calManualita" data-link-label="MANUALITÀ">
+        <span class="emoji">📅</span>
+        <div><b>MANUALITÀ</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calMateFisica" data-link-label="MATE & FISICA">
+        <span class="emoji">📅</span>
+        <div><b>MATE & FISICA</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calPalestraA" data-link-label="PALESTRA A">
+        <span class="emoji">📅</span>
+        <div><b>PALESTRA A</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calPalestraB" data-link-label="PALESTRA B">
+        <span class="emoji">📅</span>
+        <div><b>PALESTRA B</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calScienze" data-link-label="SCIENZE">
+        <span class="emoji">📅</span>
+        <div><b>SCIENZE</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calStem" data-link-label="STEM">
+        <span class="emoji">📅</span>
+        <div><b>STEM</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calTeatro" data-link-label="TEATRO">
+        <span class="emoji">📅</span>
+        <div><b>TEATRO</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calUsciteEventi" data-link-label="USCITE & EVENTI">
+        <span class="emoji">📅</span>
+        <div><b>USCITE & EVENTI</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calWebRadio" data-link-label="WEB RADIO">
+        <span class="emoji">📅</span>
+        <div><b>WEB RADIO</b><small>Aggiungi a Google Calendar</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="sheet" id="loghiSheet">
   <div class="sheetbox">
@@ -929,6 +1052,21 @@ const LINKS={
   loghiUtili:"https://drive.google.com/drive/folders/1qk8ZQEMfwMOCvHQbAHFmx35T66eimCqs?usp=sharing",
   sostituzioni:"https://share.goodnotes.com/s/lebuJKMUgN4SfeOqObcS8A",
   prenotazioni:"https://calendar.google.com/calendar/u/0/r",
+  calAulaRiunioni:"https://calendar.google.com/calendar/u/0?cid=ZDBhOWExMzViYTM5NGFiZmIzOWQ3YjQ3NjdiZGQ5Nzg2M2JiMmJhZTk5NjAxODc2ODdmMjExM2YxMzE5MmI0ZUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calAulaVerde:"https://calendar.google.com/calendar/u/0?cid=ZWY5YWM4NmY4MTNlNmUwODk3NmNkODllZWI2N2M1M2ZmMjUwM2E2ODdlMjQ5MmQ5NzQwMjk2MGUxMjNmMGQ5NkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calBiblioteca:"https://calendar.google.com/calendar/u/0?cid=YTVhOGQ4ZWE4YjBkYmI5YTdkYjM4ZDA5YTMyNGI5YWM4YWM3MzBlMTA2ODcyMTk5NmRkMGEwZTlhYTZkYzhiNEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calIpad:"https://calendar.google.com/calendar/u/0?cid=NGMwZjFiM2Y2ZGQ5Nzg1NDRlYTNmZjYzMzc5NjUzZmI5MDZiNjkyMGJmZmI5ZDNmNDA5MTkwYzY0NjEzNjMyNEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calInformatica:"https://calendar.google.com/calendar/u/0?cid=NDU1NjgyNTVjODQ2Yzk1Y2QxOWVlNDkwYjJhZjliYmQxN2NlMTY2ZGQ0ZmU1MmQxOTc5NzU0MTMyYzhkYTVmYUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calLingue:"https://calendar.google.com/calendar/u/0?cid=MTM2NWJmMDVhYjIwYjVhM2QyZWQ2M2QzOWIyNGFkMTY1YTdhMTQxMzY2MzFjODU5YTUyY2Y0ZTE5N2Q5YzEyNEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calManualita:"https://calendar.google.com/calendar/u/0?cid=MTc4NTRiYmNjZjFiMjExMDhjNmNmNjNjZTk5NDM4ZDM0M2UwYjM1MjlhNjczNGE5MjA3Y2NmNDVhZTgzODRkNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calMateFisica:"https://calendar.google.com/calendar/u/0?cid=YWY1ODM3YmNkODgwOGE5MWU3ZTE0YjgyNmI3NzEzZTU4ZTcyNGQ3ZDQwNWQ1N2YwNjljNjZjZGJjOGIyMDQ2YUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calPalestraA:"https://calendar.google.com/calendar/u/0?cid=NTMzZGE3OGZmMjVlY2U2NWJlY2YwYzQzMjUwZDIyODhmNzNhM2Y5NDFlZDU2ZTYwOWFhYmE1OWVkYTljNzE5ZkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calPalestraB:"https://calendar.google.com/calendar/u/0?cid=YTVkZmUxYTlmZTIwNmY1NmM0M2JmNzY2M2U1NDcyMjRlOTA1ZmYyMzdlMWI5M2ZiZGY1MzI3ZmI3MjAxODYyY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calScienze:"https://calendar.google.com/calendar/u/0?cid=NTIzMDg4YzI4OGRiNjhhZWVkNjI1OGU0MmVjN2JmODZkZDI0ODJhY2MxNjUwNWFmODViMjQyMmMyYmNmNjNhYUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calStem:"https://calendar.google.com/calendar/u/0?cid=ODQ3NDJlYTA0MWVhYzA3MTIwMzFhZTY3ZjA0OGE3NjQyOTA1YjA3YjlkNGRiMGUxM2YxMjg1MGE0MmM1ODRiMkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calTeatro:"https://calendar.google.com/calendar/u/0?cid=MDE4YTk5Zjc1M2M2NGEzMGYzNThjZjRiMjIyNTkxNTc1NGFiNTNkZjRhY2MzYjdjNjA3ODJhMzk1MDFjMmY0MEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calUsciteEventi:"https://calendar.google.com/calendar/u/0?cid=ZGUzN2Y5NTM3YWIzMjllYzdiNTk5Y2Q2MjJlMmY4MTMzNDJlNmVmYzU5ZWU1YTY4YjQyZmRkZGViZDgxNmFiY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
+  calWebRadio:"https://calendar.google.com/calendar/u/0?cid=ZDczY2Y1MjIwYzJmOGI1YWYwOGJhZjE1YjUzODFkYmQyOGY3ODhkZjY3NjcwYzk3YmRlZGM2YjNlNjEyZDM5ZkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
   libriTesto:"https://drive.google.com/file/d/1DzVSicxSN5VrfaiNfRRHvcF_CPBPB6h5/view?usp=sharing",
   banchi:"https://flavionaretti-commits.github.io/disposizione-banchi/"
 };
@@ -1283,6 +1421,13 @@ document.getElementById('resetOrderBtn').onclick=()=>{
 };
 
 /* SOTTOMENU */
+document.querySelector('[data-menu="prenotazioniSheet"]').onclick=()=>{
+  document.getElementById('prenotazioniSheet').classList.add('active');
+};
+document.getElementById('aggiungiCalendariBtn').onclick=()=>{
+  document.getElementById('prenotazioniSheet').classList.remove('active');
+  document.getElementById('calendariPrenotazioneSheet').classList.add('active');
+};
 
 document.getElementById('orarioBtn').onclick=()=>document.getElementById('orarioSheet').classList.add('active');
 document.getElementById('loghiBtn').onclick=()=>document.getElementById('loghiSheet').classList.add('active');
