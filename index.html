@@ -167,6 +167,7 @@ body.reordering{
   cursor:grabbing;
   -webkit-user-select:none;
   user-select:none;
+  overscroll-behavior:none;
 }
 body.reordering *{cursor:grabbing!important}
 .reorder-toast{
@@ -1011,7 +1012,7 @@ const REORDER_STORAGE={
   tools:"maritanino-order-tools-v1",
   org:"maritanino-order-org-v1"
 };
-const LONG_PRESS_MS=700;
+const LONG_PRESS_MS=550;
 const MOVE_CANCEL_PX=12;
 const toolsGrid=document.querySelector('.tools-grid');
 const orgGrid=document.querySelector('.org-grid');
@@ -1133,15 +1134,57 @@ function moveGhost(x,y){
 
 function maybeRepositionSource(x,y){
   const {card,grid}=reorderState;
-  const target=document.elementFromPoint(x,y)?.closest('.card');
-  if(!target || target===card || target.parentElement!==grid) return;
 
-  const r=target.getBoundingClientRect();
-  const sameRow=Math.abs(y-(r.top+r.height/2)) < r.height*.42;
-  const before = y < r.top+r.height/2 || (sameRow && x < r.left+r.width/2);
+  /* Su touch è più fluido trovare la tessera il cui centro è più vicino
+     al dito, invece di dipendere da elementFromPoint. */
+  const others=gridCards(grid).filter(el=>el!==card);
+  if(!others.length) return;
 
-  if(before) grid.insertBefore(card,target);
-  else grid.insertBefore(card,target.nextSibling);
+  let nearest=null;
+  let nearestDist=Infinity;
+
+  others.forEach(el=>{
+    const r=el.getBoundingClientRect();
+    const cx=r.left+r.width/2;
+    const cy=r.top+r.height/2;
+    const dx=x-cx;
+    const dy=y-cy;
+
+    /* Il peso verticale leggermente maggiore aiuta nelle griglie a 2 colonne
+       tipiche dell'iPhone. */
+    const dist=dx*dx + (dy*1.18)*(dy*1.18);
+
+    if(dist<nearestDist){
+      nearestDist=dist;
+      nearest={el,r,cx,cy};
+    }
+  });
+
+  if(!nearest) return;
+
+  const {el,r,cx,cy}=nearest;
+
+  /* Decide prima/dopo considerando prima la riga e poi la colonna. */
+  const verticalDelta=y-cy;
+  const horizontalDelta=x-cx;
+  let before;
+
+  if(Math.abs(verticalDelta) > r.height*0.28){
+    before=verticalDelta<0;
+  }else{
+    before=horizontalDelta<0;
+  }
+
+  const desiredBefore = before ? el : el.nextSibling;
+
+  /* Evita reinserimenti inutili: meno layout/reflow = drag più fluido. */
+  if(before){
+    if(card.nextSibling===el) return;
+    grid.insertBefore(card,el);
+  }else{
+    if(el.nextSibling===card) return;
+    grid.insertBefore(card,desiredBefore);
+  }
 }
 
 function finishReorder(cancelled=false){
@@ -1152,6 +1195,7 @@ function finishReorder(cancelled=false){
 
   clearTimeout(state.timer);
   clearTimeout(state.safetyTimer);
+  if(state.raf) cancelAnimationFrame(state.raf);
 
   /* Pulizia sempre, anche se iOS ha perso uno degli eventi intermedi. */
   state.card?.classList.remove('reorder-source');
@@ -1196,7 +1240,10 @@ function installReorder(grid){
         latestEvent:e,
         timer:null,
         safetyTimer:null,
-        ghost:null
+        ghost:null,
+        raf:null,
+        pendingX:e.clientX,
+        pendingY:e.clientY
       };
 
       reorderState.timer=setTimeout(()=>{
@@ -1223,13 +1270,28 @@ function installReorder(grid){
       }
 
       e.preventDefault();
-      moveGhost(e.clientX,e.clientY);
-      maybeRepositionSource(e.clientX,e.clientY);
 
-      /* Auto-scroll leggero vicino ai bordi dello schermo. */
-      const edge=72;
-      if(e.clientY<edge) window.scrollBy(0,-8);
-      else if(e.clientY>window.innerHeight-edge) window.scrollBy(0,8);
+      reorderState.pendingX=e.clientX;
+      reorderState.pendingY=e.clientY;
+
+      if(!reorderState.raf){
+        reorderState.raf=requestAnimationFrame(()=>{
+          if(!reorderState?.active) return;
+
+          const x=reorderState.pendingX;
+          const y=reorderState.pendingY;
+
+          moveGhost(x,y);
+          maybeRepositionSource(x,y);
+
+          /* Auto-scroll più morbido vicino ai bordi. */
+          const edge=86;
+          if(y<edge) window.scrollBy(0,-5);
+          else if(y>window.innerHeight-edge) window.scrollBy(0,5);
+
+          reorderState.raf=null;
+        });
+      }
     },{passive:false});
 
     card.addEventListener('pointerup',e=>{
