@@ -1,4 +1,4 @@
-const CACHE_NAME = "maritanino-shell-v6-regolamenti-20260822";
+const CACHE_NAME = "maritanino-shell-v7-link-drive-pingpong-microonde-20260822";
 
 const APP_SHELL = [
   "./",
