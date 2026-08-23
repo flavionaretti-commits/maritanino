@@ -269,6 +269,12 @@ body.move-mode .card{cursor:pointer}
 .menu-item div{flex:1;min-width:0}
 .menu-item b{display:block}
 .menu-item small{color:var(--muted)}
+.doc-updated{
+  display:block;
+  margin-top:3px;
+  color:var(--blue);
+  font-weight:750;
+}
 .menu-arrow{font-weight:900;color:var(--blue);font-size:1.15rem}
 .note{
   background:var(--orange-soft);
@@ -1085,6 +1091,61 @@ const LINKS={
   libriTesto:"https://drive.google.com/file/d/1DzVSicxSN5VrfaiNfRRHvcF_CPBPB6h5/view?usp=sharing",
   banchi:"https://flavionaretti-commits.github.io/disposizione-banchi/"
 };
+
+const DOC_META_ENDPOINT="https://script.google.com/macros/s/AKfycbwpdStShmaNWMP4knPemTW6QMnwZeQyeHVlibVfjF4WKiw00IhwEkRs8SAY6pGLnSlMdw/exec";
+
+function formatDocumentUpdate(iso){
+  const d=new Date(iso);
+  if(Number.isNaN(d.getTime())) return "";
+  const data=d.toLocaleDateString("it-IT",{
+    day:"2-digit",month:"2-digit",year:"numeric"
+  });
+  const ora=d.toLocaleTimeString("it-IT",{
+    hour:"2-digit",minute:"2-digit"
+  });
+  return `Aggiornato il ${data} alle ${ora}`;
+}
+
+function findDocumentElement(key){
+  return [...document.querySelectorAll("[data-link-key],[data-key]")].find(el=>
+    el.dataset.linkKey===key || el.dataset.key===key
+  ) || null;
+}
+
+window.maritaninoDocMeta=function(dati){
+  if(!dati || typeof dati!=="object") return;
+
+  Object.entries(dati).forEach(([key,info])=>{
+    if(!info || info.errore || !info.aggiornato) return;
+
+    const item=findDocumentElement(key);
+    if(!item) return;
+
+    const small=item.querySelector("small");
+    if(!small) return;
+
+    let riga=small.querySelector(".doc-updated");
+    if(!riga){
+      riga=document.createElement("span");
+      riga.className="doc-updated";
+      small.appendChild(riga);
+    }
+
+    riga.textContent=formatDocumentUpdate(info.aggiornato);
+    if(info.nome) item.title=info.nome;
+  });
+};
+
+function loadDocumentMetadata(){
+  const script=document.createElement("script");
+  const sep=DOC_META_ENDPOINT.includes("?") ? "&" : "?";
+  script.src=`${DOC_META_ENDPOINT}${sep}prefix=maritaninoDocMeta&_=${Date.now()}`;
+  script.async=true;
+  script.onerror=()=>console.warn("Metadati documenti non disponibili.");
+  document.head.appendChild(script);
+}
+
+loadDocumentMetadata();
 
 const GAMES=[
   {key:"ignorante",name:"L’IGNORANTE!",emoji:"🕵️",url:"https://flavionaretti-commits.github.io/ignorante/"},
