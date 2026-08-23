@@ -402,7 +402,7 @@ body.move-mode .card{cursor:pointer}
     </button>
 
     <button class="card menu" data-key="prenotazioni" data-menu="prenotazioniSheet">
-      <span class="badge">GOOGLE CALENDAR</span><span class="emoji">🏫</span>
+      <span class="badge">GOOGLE CALENDAR</span><span class="emoji">✅</span>
       <b>Prenota aule e laboratori</b>
       <p>Apri le prenotazioni oppure aggiungi i calendari condivisi delle aule.</p>
     </button>
@@ -482,6 +482,12 @@ body.move-mode .card{cursor:pointer}
       <p>Consulta la distribuzione delle classi e degli spazi nei tre piani del plesso.</p>
     </button>
 
+    <button class="card external" data-kind="external" data-key="smistamentoAule">
+      <span class="badge">🔐 RISERVATO</span><span class="emoji">🔀</span>
+      <b>Smistamento aule</b>
+      <p>Consulta il documento per lo smistamento delle classi nelle aule.</p>
+    </button>
+
     <button class="card menu" id="regolamentiBtn">
       <span class="badge">MENU</span><span class="emoji">📚</span>
       <b>Regolamenti</b>
@@ -559,7 +565,7 @@ body.move-mode .card{cursor:pointer}
 <div class="sheet" id="prenotazioniSheet">
   <div class="sheetbox">
     <div class="sheethead">
-      <h3>🏫 Prenota aule e laboratori</h3>
+      <h3>✅ Prenota aule e laboratori</h3>
       <button class="close" data-close="prenotazioniSheet">×</button>
     </div>
     <div class="menu-list">
@@ -1081,6 +1087,7 @@ const LINKS={
   pianoTerra:"https://drive.google.com/file/d/1A1H-dplIKW9cnmoMnDExy_dzyKIhsnYn/view?usp=sharing",
   primoPiano:"https://drive.google.com/file/d/1irB71S16vNVItM78Gy3wO4sWnaD0gclW/view?usp=sharing",
   secondoPiano:"https://drive.google.com/file/d/1b1daxxF_MGV1qdMlm7pask-_8_MoVhUj/view?usp=sharing",
+  smistamentoAule:"https://drive.google.com/file/d/12ZMXSBwpLygyZKO669x1p_zDzmjA4rID/view?usp=drivesdk",
   regolamentoIstituto:"https://drive.google.com/file/d/1aBDLfAGSxEUX2SOc7OBmFBcx8L6mlYGy/view?usp=sharing",
   regolamentoAssenze:"https://drive.google.com/file/d/1RWS9PUicN6hCm7oVpLSrfvm0lNvK56no/view?usp=sharing",
   regolamentoIntervalli:"https://drive.google.com/file/d/1YiKgKJk6nuE3kJ0OsSCRXWKrYNST4ANW/view?usp=sharing",
@@ -1553,6 +1560,17 @@ function migrateOldOrder(newKey,oldKey){
 migrateOldOrder(REORDER_STORAGE.tools,"maritanino-order-tools-v1");
 migrateOldOrder(REORDER_STORAGE.org,"maritanino-order-org-v1");
 
+/* Inserisce la nuova tessera subito dopo Distribuzione aule anche sui
+   dispositivi che hanno già salvato un ordine personalizzato. */
+try{
+  const savedOrgOrder=JSON.parse(localStorage.getItem(REORDER_STORAGE.org) || "[]");
+  if(Array.isArray(savedOrgOrder) && savedOrgOrder.length && !savedOrgOrder.includes("smistamentoAule")){
+    const auleIndex=savedOrgOrder.indexOf("auleBtn");
+    savedOrgOrder.splice(auleIndex>=0 ? auleIndex+1 : savedOrgOrder.length,0,"smistamentoAule");
+    localStorage.setItem(REORDER_STORAGE.org,JSON.stringify(savedOrgOrder));
+  }
+}catch(e){}
+
 applySavedOrder(toolsGrid,REORDER_STORAGE.tools);
 applySavedOrder(orgGrid,REORDER_STORAGE.org);
 
@@ -1797,4 +1815,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-

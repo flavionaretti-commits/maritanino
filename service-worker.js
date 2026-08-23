@@ -1,4 +1,4 @@
-const CACHE_NAME = "maritanino-shell-v8-ios-icon-20260823";
+const CACHE_NAME = "maritanino-shell-v9-smistamento-aule-20260823";
 
 const APP_SHELL = [
   "./",
