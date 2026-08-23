@@ -1106,43 +1106,93 @@ function formatDocumentUpdate(iso){
   return `Aggiornato il ${data} alle ${ora}`;
 }
 
+/* Ricava automaticamente l'ID dai normali link Google Drive/Docs.
+   Le cartelle vengono ignorate: Apps Script restituisce metadati solo
+   per i file che appartengono a 0. MARITANO (RISERVATA) o sottocartelle. */
+function extractDriveFileId(url){
+  if(!url || typeof url!=="string") return "";
+  if(!/^https:\/\/(drive|docs)\.google\.com\//i.test(url)) return "";
+  if(/\/folders\//i.test(url)) return "";
+
+  const pathMatch=url.match(/\/d\/([A-Za-z0-9_-]{20,})/);
+  if(pathMatch) return pathMatch[1];
+
+  try{
+    const parsed=new URL(url);
+    const id=parsed.searchParams.get("id") || "";
+    return /^[A-Za-z0-9_-]{20,}$/.test(id) ? id : "";
+  }catch(e){
+    return "";
+  }
+}
+
+/* Un ID può essere usato da più voci del MARITANINO: conserviamo tutte le chiavi. */
+const DOC_KEYS_BY_ID={};
+Object.entries(LINKS).forEach(([key,url])=>{
+  const id=extractDriveFileId(url);
+  if(!id) return;
+  if(!DOC_KEYS_BY_ID[id]) DOC_KEYS_BY_ID[id]=[];
+  DOC_KEYS_BY_ID[id].push(key);
+});
+
 function findDocumentElement(key){
   return [...document.querySelectorAll("[data-link-key],[data-key]")].find(el=>
     el.dataset.linkKey===key || el.dataset.key===key
   ) || null;
 }
 
+function showDocumentUpdate(item,info){
+  if(!item || !info || info.errore || !info.aggiornato) return;
+
+  /* Nei sottomenu la data va sotto <small>; nelle tessere Home sotto <p>. */
+  const contenitore=item.classList.contains("card")
+    ? item.querySelector("p")
+    : item.querySelector("small");
+  if(!contenitore) return;
+
+  let riga=contenitore.querySelector(".doc-updated");
+  if(!riga){
+    riga=document.createElement("span");
+    riga.className="doc-updated";
+    contenitore.appendChild(riga);
+  }
+
+  riga.textContent=formatDocumentUpdate(info.aggiornato);
+  if(info.nome) item.title=info.nome;
+}
+
 window.maritaninoDocMeta=function(dati){
   if(!dati || typeof dati!=="object") return;
 
-  Object.entries(dati).forEach(([key,info])=>{
+  Object.entries(dati).forEach(([idOrKey,info])=>{
     if(!info || info.errore || !info.aggiornato) return;
 
-    const item=findDocumentElement(key);
-    if(!item) return;
-
-    const small=item.querySelector("small");
-    if(!small) return;
-
-    let riga=small.querySelector(".doc-updated");
-    if(!riga){
-      riga=document.createElement("span");
-      riga.className="doc-updated";
-      small.appendChild(riga);
-    }
-
-    riga.textContent=formatDocumentUpdate(info.aggiornato);
-    if(info.nome) item.title=info.nome;
+    /* Nuovo Apps Script: risposta indicizzata per ID file.
+       Compatibilità: accettiamo anche la vecchia risposta per chiave. */
+    const keys=DOC_KEYS_BY_ID[idOrKey] || (LINKS[idOrKey] ? [idOrKey] : []);
+    keys.forEach(key=>showDocumentUpdate(findDocumentElement(key),info));
   });
 };
 
 function loadDocumentMetadata(){
-  const script=document.createElement("script");
-  const sep=DOC_META_ENDPOINT.includes("?") ? "&" : "?";
-  script.src=`${DOC_META_ENDPOINT}${sep}prefix=maritaninoDocMeta&_=${Date.now()}`;
-  script.async=true;
-  script.onerror=()=>console.warn("Metadati documenti non disponibili.");
-  document.head.appendChild(script);
+  const ids=Object.keys(DOC_KEYS_BY_ID);
+  if(!ids.length) return;
+
+  /* Piccoli blocchi evitano URL troppo lunghi se in futuro i documenti aumentano. */
+  const batchSize=25;
+  for(let i=0;i<ids.length;i+=batchSize){
+    const batch=ids.slice(i,i+batchSize);
+    const script=document.createElement("script");
+    const sep=DOC_META_ENDPOINT.includes("?") ? "&" : "?";
+    script.src=`${DOC_META_ENDPOINT}${sep}ids=${encodeURIComponent(batch.join(","))}&prefix=maritaninoDocMeta&_=${Date.now()}-${i}`;
+    script.async=true;
+    script.onload=()=>script.remove();
+    script.onerror=()=>{
+      console.warn("Metadati documenti non disponibili.");
+      script.remove();
+    };
+    document.head.appendChild(script);
+  }
 }
 
 loadDocumentMetadata();
