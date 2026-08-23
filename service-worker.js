@@ -1,4 +1,4 @@
-const CACHE_NAME = "maritanino-shell-v7-link-drive-pingpong-microonde-20260822";
+const CACHE_NAME = "maritanino-shell-v8-ios-icon-20260823";
 
 const APP_SHELL = [
   "./",
@@ -7,7 +7,7 @@ const APP_SHELL = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
-  "./icons/apple-touch-icon.png"
+  "./icons/apple-touch-icon.png?v=20260823"
 ];
 
 self.addEventListener("install", event => {
