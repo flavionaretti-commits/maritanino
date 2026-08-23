@@ -275,6 +275,42 @@ body.move-mode .card{cursor:pointer}
   color:var(--blue);
   font-weight:750;
 }
+.doc-state{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:5px;
+  color:var(--orange-strong);
+  font-weight:900;
+  letter-spacing:.02em;
+}
+.doc-state-dot,
+.section-alert-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex:0 0 auto;
+  background:var(--orange);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--orange) 20%,transparent),
+             0 0 12px color-mix(in srgb,var(--orange) 80%,transparent);
+  animation:docPulse 1.55s ease-in-out infinite;
+}
+.section-alert{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:7px;
+  color:var(--orange-strong);
+  font-size:.78rem;
+  font-weight:900;
+}
+@keyframes docPulse{
+  0%,100%{transform:scale(.92);opacity:.72}
+  50%{transform:scale(1.16);opacity:1}
+}
+@media (prefers-reduced-motion:reduce){
+  .doc-state-dot,.section-alert-dot{animation:none}
+}
 .menu-arrow{font-weight:900;color:var(--blue);font-size:1.15rem}
 .note{
   background:var(--orange-soft);
@@ -1003,6 +1039,7 @@ body.move-mode .card{cursor:pointer}
     <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni.</p>
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
     <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI e ORGANIZZAZIONE si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
+    <p><strong>Documenti nuovi e aggiornati</strong>: un punto luminoso segnala i documenti riservati mai aperti su questo dispositivo (<strong>NUOVO</strong>) o modificati dopo l’ultima apertura (<strong>AGGIORNATO</strong>). Quando apri il documento, l’avviso scompare. Questa memoria resta solo su questo dispositivo.</p>
     <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
     <div class="info-credit">
@@ -1093,6 +1130,8 @@ const LINKS={
 };
 
 const DOC_META_ENDPOINT="https://script.google.com/macros/s/AKfycbwpdStShmaNWMP4knPemTW6QMnwZeQyeHVlibVfjF4WKiw00IhwEkRs8SAY6pGLnSlMdw/exec";
+const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
+const DOC_META_BY_ID={};
 
 function formatDocumentUpdate(iso){
   const d=new Date(iso);
@@ -1128,23 +1167,54 @@ function extractDriveFileId(url){
 
 /* Un ID può essere usato da più voci del MARITANINO: conserviamo tutte le chiavi. */
 const DOC_KEYS_BY_ID={};
+const DOC_ID_BY_KEY={};
 Object.entries(LINKS).forEach(([key,url])=>{
   const id=extractDriveFileId(url);
   if(!id) return;
+  DOC_ID_BY_KEY[key]=id;
   if(!DOC_KEYS_BY_ID[id]) DOC_KEYS_BY_ID[id]=[];
   DOC_KEYS_BY_ID[id].push(key);
 });
 
-function findDocumentElement(key){
-  return [...document.querySelectorAll("[data-link-key],[data-key]")].find(el=>
-    el.dataset.linkKey===key || el.dataset.key===key
-  ) || null;
+function loadSeenDocuments(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(DOC_SEEN_STORAGE) || "{}");
+    return parsed && typeof parsed==="object" ? parsed : {};
+  }catch(e){
+    return {};
+  }
 }
 
-function showDocumentUpdate(item,info){
+let DOC_SEEN=loadSeenDocuments();
+
+function saveSeenDocuments(){
+  try{
+    localStorage.setItem(DOC_SEEN_STORAGE,JSON.stringify(DOC_SEEN));
+  }catch(e){}
+}
+
+function documentStateForId(id){
+  const info=DOC_META_BY_ID[id];
+  if(!info || info.errore || !info.aggiornato) return "";
+
+  const seen=DOC_SEEN[id];
+  if(!seen) return "new";
+
+  const updatedMs=new Date(info.aggiornato).getTime();
+  const seenMs=new Date(seen).getTime();
+  if(Number.isNaN(updatedMs) || Number.isNaN(seenMs)) return "";
+  return updatedMs>seenMs ? "updated" : "";
+}
+
+function findDocumentElements(key){
+  return [...document.querySelectorAll("[data-link-key],[data-key]")].filter(el=>
+    el.dataset.linkKey===key || el.dataset.key===key
+  );
+}
+
+function ensureDocumentUpdateLine(item,info){
   if(!item || !info || info.errore || !info.aggiornato) return;
 
-  /* Nei sottomenu la data va sotto <small>; nelle tessere Home sotto <p>. */
   const contenitore=item.classList.contains("card")
     ? item.querySelector("p")
     : item.querySelector("small");
@@ -1156,9 +1226,114 @@ function showDocumentUpdate(item,info){
     riga.className="doc-updated";
     contenitore.appendChild(riga);
   }
-
   riga.textContent=formatDocumentUpdate(info.aggiornato);
   if(info.nome) item.title=info.nome;
+}
+
+function renderDocumentStateForElement(item,id){
+  if(!item) return;
+  const contenitore=item.classList.contains("card")
+    ? item.querySelector("p")
+    : item.querySelector("small");
+  if(!contenitore) return;
+
+  let stato=contenitore.querySelector(".doc-state");
+  const state=documentStateForId(id);
+
+  if(!state){
+    stato?.remove();
+    return;
+  }
+
+  if(!stato){
+    stato=document.createElement("span");
+    stato.className="doc-state";
+    stato.innerHTML='<span class="doc-state-dot" aria-hidden="true"></span><span class="doc-state-label"></span>';
+    contenitore.appendChild(stato);
+  }
+
+  const label=state==="new" ? "NUOVO" : "AGGIORNATO";
+  stato.querySelector(".doc-state-label").textContent=label;
+  stato.setAttribute("aria-label",label);
+}
+
+function renderDocumentById(id){
+  const info=DOC_META_BY_ID[id];
+  if(!info || info.errore || !info.aggiornato) return;
+  (DOC_KEYS_BY_ID[id] || []).forEach(key=>{
+    findDocumentElements(key).forEach(item=>{
+      ensureDocumentUpdateLine(item,info);
+      renderDocumentStateForElement(item,id);
+    });
+  });
+}
+
+const DOC_SECTION_GROUPS={
+  orarioBtn:["orarioSheet","orarioClassiSheet"],
+  auleBtn:["auleSheet"],
+  regolamentiBtn:["regolamentiSheet"],
+  modulisticaBtn:["modulisticaSheet"],
+  giocoCaseBtn:["giocoCaseSheet"]
+};
+
+function sectionDocumentIds(sheetIds){
+  const ids=new Set();
+  sheetIds.forEach(sheetId=>{
+    const sheet=document.getElementById(sheetId);
+    if(!sheet) return;
+    sheet.querySelectorAll("[data-link-key]").forEach(el=>{
+      const id=DOC_ID_BY_KEY[el.dataset.linkKey];
+      if(id) ids.add(id);
+    });
+  });
+  return [...ids];
+}
+
+function renderSectionAlerts(){
+  Object.entries(DOC_SECTION_GROUPS).forEach(([parentId,sheetIds])=>{
+    const parent=document.getElementById(parentId);
+    if(!parent) return;
+
+    const count=sectionDocumentIds(sheetIds).filter(id=>
+      DOC_META_BY_ID[id] && documentStateForId(id)
+    ).length;
+
+    const p=parent.querySelector("p");
+    if(!p) return;
+
+    let alert=p.querySelector(".section-alert");
+    if(!count){
+      alert?.remove();
+      return;
+    }
+
+    if(!alert){
+      alert=document.createElement("span");
+      alert.className="section-alert";
+      alert.innerHTML='<span class="section-alert-dot" aria-hidden="true"></span><span class="section-alert-label"></span>';
+      p.appendChild(alert);
+    }
+
+    const testo=count===1 ? "1 documento da vedere" : `${count} documenti da vedere`;
+    alert.querySelector(".section-alert-label").textContent=testo;
+    alert.setAttribute("aria-label",testo);
+  });
+}
+
+function renderAllDocumentStates(){
+  Object.keys(DOC_META_BY_ID).forEach(renderDocumentById);
+  renderSectionAlerts();
+}
+
+/* Un click sul documento vale come apertura: registriamo localmente il momento.
+   Nessun dato personale viene inviato o sincronizzato tra dispositivi. */
+function markDocumentSeenByKey(key){
+  const id=DOC_ID_BY_KEY[key];
+  if(!id) return;
+  DOC_SEEN[id]=new Date().toISOString();
+  saveSeenDocuments();
+  renderDocumentById(id);
+  renderSectionAlerts();
 }
 
 window.maritaninoDocMeta=function(dati){
@@ -1167,11 +1342,17 @@ window.maritaninoDocMeta=function(dati){
   Object.entries(dati).forEach(([idOrKey,info])=>{
     if(!info || info.errore || !info.aggiornato) return;
 
-    /* Nuovo Apps Script: risposta indicizzata per ID file.
-       Compatibilità: accettiamo anche la vecchia risposta per chiave. */
-    const keys=DOC_KEYS_BY_ID[idOrKey] || (LINKS[idOrKey] ? [idOrKey] : []);
-    keys.forEach(key=>showDocumentUpdate(findDocumentElement(key),info));
+    let id=idOrKey;
+    if(!DOC_KEYS_BY_ID[idOrKey] && LINKS[idOrKey]){
+      id=DOC_ID_BY_KEY[idOrKey] || "";
+    }
+    if(!id) return;
+
+    DOC_META_BY_ID[id]=info;
+    renderDocumentById(id);
   });
+
+  renderSectionAlerts();
 };
 
 function loadDocumentMetadata(){
@@ -1294,6 +1475,7 @@ document.querySelectorAll('[data-kind]').forEach(btn=>{
   btn.addEventListener('click',()=>{
     const key=btn.dataset.key;
     const label=btn.querySelector('b').textContent;
+    markDocumentSeenByKey(key);
     openInNewTab(label,LINKS[key]);
   });
 });
@@ -1570,6 +1752,7 @@ document.querySelectorAll('.submenu-link').forEach(btn=>{
   btn.onclick=()=>{
     const key=btn.dataset.linkKey;
     const label=btn.dataset.linkLabel;
+    markDocumentSeenByKey(key);
     btn.closest('.sheet').classList.remove('active');
     openInNewTab(label,LINKS[key]);
   };
