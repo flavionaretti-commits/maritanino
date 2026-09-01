@@ -459,7 +459,7 @@ body.move-mode .card{cursor:pointer}
     </button>
 
     <button class="card external" data-kind="external" data-key="organigramma">
-      <span class="badge">🔐 RISERVATO</span><span class="emoji">🧩</span>
+      <span class="badge">ESTERNO ↗</span><span class="emoji">🧩</span>
       <b>Organigramma</b>
       <p>Ruoli, incarichi e organizzazione del plesso.</p>
     </button>
@@ -902,7 +902,31 @@ body.move-mode .card{cursor:pointer}
 
       <button class="menu-item submenu-link" data-link-key="regolamentoIstituto" data-link-label="Regolamento di istituto">
         <span class="emoji">🏛️</span>
-        <div><b>Regolamento di istituto</b><small>Documento riservato · Google Drive</small></div>
+        <div><b>Regolamento di istituto</b><small>Pagina pubblica · Sito della scuola</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="regolamentoFumo" data-link-label="Regolamento fumo">
+        <span class="emoji">🚭</span>
+        <div><b>Regolamento fumo</b><small>Pagina pubblica · Sito della scuola</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="pattoCorresponsabilita" data-link-label="Patto di corresponsabilità">
+        <span class="emoji">🤝</span>
+        <div><b>Patto di corresponsabilità</b><small>Pagina pubblica · Sito della scuola</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="riunioniOrganiCollegiali" data-link-label="Riunioni organi collegiali">
+        <span class="emoji">👥</span>
+        <div><b>Riunioni organi collegiali</b><small>Pagina pubblica · Sito della scuola</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="codiceDisciplinare" data-link-label="Codice disciplinare">
+        <span class="emoji">⚖️</span>
+        <div><b>Codice disciplinare</b><small>Pagina pubblica · Sito della scuola</small></div>
         <span class="menu-arrow">›</span>
       </button>
 
@@ -920,7 +944,7 @@ body.move-mode .card{cursor:pointer}
 
       <button class="menu-item submenu-link" data-link-key="regolamentoScioperi" data-link-label="Regolamento scioperi">
         <span class="emoji">📢</span>
-        <div><b>Regolamento scioperi</b><small>Documento riservato · Google Drive</small></div>
+        <div><b>Regolamento scioperi</b><small>Pagina pubblica · Sito della scuola</small></div>
         <span class="menu-arrow">›</span>
       </button>
 
@@ -1080,7 +1104,7 @@ const LINKS={
   orario3F:"https://drive.google.com/file/d/1zDo8FupV-M36_ZUeaTqB7RFq93E8kNnT/view?usp=drivesdk",
   orario2G:"https://drive.google.com/file/d/1NNk7Niwwi9lFQSiCUUTMPHt74uaQ_Nvb/view?usp=drivesdk",
   orarioCampanella:"https://drive.google.com/file/d/1Voc-dMBRCiuy4dJHSe1Ff4hqOhAl52bJ/view?usp=drive_link",
-  organigramma:"https://drive.google.com/file/d/1hE3jvxYG3yrgHQ4DmSvlgKjRb-g5NkN2/view?usp=sharing",
+  organigramma:"https://www.scuolabaricco.edu.it/pagine/organizzazione/organigramma",
   cattedre:"https://drive.google.com/file/d/1fWEJvRgpNdPzAbV8d9Tl4BwTMbU0_OUZ/view?usp=drive_link",
   coordinatori:"https://drive.google.com/file/d/1qZVl0rP7ZYz5DPaKMLn9SD7vLJdJHX9I/view?usp=sharing",
   piantaScuola:"https://drive.google.com/drive/folders/1YnnHzibP8i-XLFtcjVx_MZ35Qu_2INaO",
@@ -1088,10 +1112,14 @@ const LINKS={
   primoPiano:"https://drive.google.com/file/d/1irB71S16vNVItM78Gy3wO4sWnaD0gclW/view?usp=sharing",
   secondoPiano:"https://drive.google.com/file/d/1b1daxxF_MGV1qdMlm7pask-_8_MoVhUj/view?usp=sharing",
   smistamentoAule:"https://drive.google.com/file/d/12ZMXSBwpLygyZKO669x1p_zDzmjA4rID/view?usp=drivesdk",
-  regolamentoIstituto:"https://drive.google.com/file/d/1aBDLfAGSxEUX2SOc7OBmFBcx8L6mlYGy/view?usp=sharing",
+  regolamentoIstituto:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-d-istituto",
+  regolamentoFumo:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-fumo",
+  pattoCorresponsabilita:"https://www.scuolabaricco.edu.it/pagine/regolamenti/patto-di-corresponsabilita-",
+  riunioniOrganiCollegiali:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-riunioni-oocc",
+  codiceDisciplinare:"https://www.scuolabaricco.edu.it/pagine/regolamenti/ccnlcodice-disciplinare",
   regolamentoAssenze:"https://drive.google.com/file/d/1RWS9PUicN6hCm7oVpLSrfvm0lNvK56no/view?usp=sharing",
   regolamentoIntervalli:"https://drive.google.com/file/d/1YiKgKJk6nuE3kJ0OsSCRXWKrYNST4ANW/view?usp=sharing",
-  regolamentoScioperi:"https://drive.google.com/file/d/1TeVaTQrdxvPyVBzD4Ezqsx6TWYvcyfW-/view?usp=sharing",
+  regolamentoScioperi:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-sciopero",
   regolamentoPingPongCalcetto:"https://drive.google.com/file/d/1qFBwtDOxlsWVNSTF1lLLdkA09H6BaNpQ/view?usp=drivesdk",
   regolamentoMicroonde:"https://drive.google.com/file/d/1Bby1zEDv1H_QPqQhviCF9Jpx53g1uWeZ/view?usp=drivesdk",
   regolamentoBiblioteca:"https://drive.google.com/file/d/1oyat8WbPlUOjdiE-339n6pEZ6K8uB_fH/view?usp=sharing",
