@@ -1,4 +1,4 @@
-const CACHE_NAME = "maritanino-shell-v11-regolamenti-sito-20260901";
+const CACHE_NAME = "maritanino-shell-v12-servizi-istituzionali-20260903";
 
 const APP_SHELL = [
   "./",

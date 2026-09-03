@@ -119,7 +119,7 @@ button{cursor:pointer}
 .section-title span{font-size:.82rem;color:var(--muted)}
 .grid{display:grid;gap:10px}
 .org-grid{grid-template-columns:repeat(3,1fr)}
-.tools-grid{grid-template-columns:repeat(4,1fr)}
+.tools-grid,.services-grid{grid-template-columns:repeat(4,1fr)}
 .card{
   position:relative;min-height:150px;text-align:left;border:1px solid var(--line);
   background:var(--panel);color:var(--ink);border-radius:18px;padding:16px;
@@ -324,7 +324,7 @@ body.move-mode .card{cursor:pointer}
 }
 .info-credit strong{color:var(--blue)}
 @media(max-width:920px){
-  .org-grid,.tools-grid{grid-template-columns:repeat(2,1fr)}
+  .org-grid,.tools-grid,.services-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:520px){
   .app{padding:8px 8px 22px}
@@ -340,7 +340,7 @@ body.move-mode .card{cursor:pointer}
   .badge{top:10px;right:10px}
 }
 @media(max-width:360px){
-  .org-grid,.tools-grid{grid-template-columns:1fr}
+  .org-grid,.tools-grid,.services-grid{grid-template-columns:1fr}
   .card{min-height:126px}
 }
 @media(orientation:landscape) and (max-height:560px){
@@ -355,7 +355,7 @@ body.move-mode .card{cursor:pointer}
   .hero p{font-size:.84rem}
   .section-title{margin:12px 4px 7px}
   .org-grid{grid-template-columns:repeat(3,1fr)}
-  .tools-grid{grid-template-columns:repeat(4,1fr)}
+  .tools-grid,.services-grid{grid-template-columns:repeat(4,1fr)}
   .card{min-height:118px;padding:11px}
   .card .emoji{font-size:1.45rem;margin-bottom:7px}
   .card b{font-size:.88rem}
@@ -364,7 +364,7 @@ body.move-mode .card{cursor:pointer}
 }
 @media(min-width:921px) and (max-width:1180px){
   .org-grid{grid-template-columns:repeat(3,1fr)}
-  .tools-grid{grid-template-columns:repeat(4,1fr)}
+  .tools-grid,.services-grid{grid-template-columns:repeat(4,1fr)}
 }
 </style>
 </head>
@@ -386,7 +386,7 @@ body.move-mode .card{cursor:pointer}
 
   <section class="hero">
     <h2>Tutta la Maritano in un posto solo.</h2>
-    <p>Organizzazione, strumenti, prenotazioni, materiali e risorse del plesso, raccolti in una Home unica e facile da aggiornare.</p>
+    <p>Strumenti, organizzazione, servizi istituzionali, materiali e risorse del plesso, raccolti in una Home unica e facile da aggiornare.</p>
   </section>
 
   <div class="section-title">
@@ -406,19 +406,6 @@ body.move-mode .card{cursor:pointer}
       <b>Prenota aule e laboratori</b>
       <p>Apri le prenotazioni oppure aggiungi i calendari condivisi delle aule.</p>
     </button>
-
-    <button class="card external" data-kind="external" data-key="registroAxios">
-      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
-      <b>Registro Elettronico AXIOS</b>
-      <p>Accedi al Registro Elettronico AXIOS con le tue credenziali personali.</p>
-    </button>
-
-    <button class="card external" data-kind="external" data-key="sitoScuola">
-      <span class="badge">ESTERNO ↗</span><span class="emoji">🌐</span>
-      <b>Sito della scuola</b>
-      <p>Accedi al sito ufficiale dell’Istituto Comprensivo Baricco.</p>
-    </button>
-
 
     <button class="card" data-kind="internal" data-key="banchi">
       <span class="badge">APP</span><span class="emoji">🪑</span>
@@ -547,6 +534,37 @@ body.move-mode .card{cursor:pointer}
       <span class="badge">ESTERNO ↗</span><span class="emoji">🧭</span>
       <b>Virtual Tour della Scuola</b>
       <p>Esplora gli ambienti e gli spazi della Maritano attraverso il tour virtuale.</p>
+    </button>
+  </div>
+
+  <div class="section-title">
+    <h3>Servizi istituzionali</h3>
+    <span>portali e piattaforme della scuola</span>
+  </div>
+
+  <div class="grid services-grid">
+    <button class="card external" data-kind="external" data-key="registroAxios">
+      <span class="badge">AXIOS ↗</span><span class="emoji">🖥️</span>
+      <b>Registro Elettronico AXIOS</b>
+      <p>Accedi al registro elettronico con le tue credenziali personali.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="sitoScuola">
+      <span class="badge">SITO WEB ↗</span><span class="emoji">🌐</span>
+      <b>Sito della Scuola Baricco</b>
+      <p>Consulta il sito ufficiale dell’Istituto Comprensivo Baricco.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="outlook">
+      <span class="badge">MICROSOFT 365 ↗</span><span class="emoji">✉️</span>
+      <b>Posta Outlook</b>
+      <p>Apri la posta istituzionale ed effettua l’accesso con il tuo account docente.</p>
+    </button>
+
+    <button class="card external" data-kind="external" data-key="teams">
+      <span class="badge">MICROSOFT 365 ↗</span><span class="emoji">💬</span>
+      <b>Microsoft Teams</b>
+      <p>Accedi alla piattaforma scolastica con le tue credenziali personali.</p>
     </button>
   </div>
 
@@ -1064,11 +1082,11 @@ body.move-mode .card{cursor:pointer}
       <button class="close" data-close="infoSheet">×</button>
     </div>
 
-    <p>MARITANINO è il cruscotto digitale della Maritano: una Home unica da cui raggiungere organizzazione, strumenti, servizi condivisi, materiali e risorse del plesso.</p>
+    <p>MARITANINO è il cruscotto digitale della Maritano: una Home unica da cui raggiungere strumenti, organizzazione, servizi istituzionali, materiali e risorse del plesso.</p>
     <p><strong>Collegamenti</strong>: su Android e PC sezioni, strumenti e giochi si aprono in una nuova scheda. Su iPhone/iPad installato come app si aprono nella stessa vista per evitare una limitazione di iOS; il comando Indietro riporta a MARITANINO.</p>
-    <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni.</p>
+    <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni. Gli accessi avvengono direttamente sui siti ufficiali: MARITANINO non riceve né memorizza le credenziali.</p>
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
-    <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI e ORGANIZZAZIONE si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
+    <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI, ORGANIZZAZIONE e SERVIZI ISTITUZIONALI si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
     <p><strong>Documenti nuovi e aggiornati</strong>: un punto luminoso segnala i documenti riservati mai aperti su questo dispositivo (<strong>NUOVO</strong>) o modificati dopo l’ultima apertura (<strong>AGGIORNATO</strong>). Quando apri il documento, l’avviso scompare. Questa memoria resta solo su questo dispositivo.</p>
     <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
@@ -1140,6 +1158,8 @@ const LINKS={
   virtualTour:"https://sway.cloud.microsoft/ayBPvXWkKJ779WZC",
   registroAxios:"https://registro.axioscloud.it/Pages/SD/SD_Login.aspx",
   sitoScuola:"https://www.scuolabaricco.edu.it/",
+  outlook:"https://outlook.office.com/mail/",
+  teams:"https://teams.microsoft.com/v2/",
   gruppiWhatsapp:"https://drive.google.com/drive/folders/1rL-75UwqZHZzW9xT8dNpdVImaAFsbu81?usp=sharing",
   loghiGiocoCase:"https://drive.google.com/drive/folders/1YLwrxzoFb6drZbepFWZFMWdi1tPsayZY?usp=sharing",
   loghiUtili:"https://drive.google.com/drive/folders/1qk8ZQEMfwMOCvHQbAHFmx35T66eimCqs?usp=sharing",
@@ -1519,13 +1539,15 @@ document.querySelectorAll('[data-kind]').forEach(btn=>{
    Pressione lunga -> selezione -> tocco sulla posizione di destinazione. */
 const REORDER_STORAGE={
   tools:"maritanino-order-tools-v2",
-  org:"maritanino-order-org-v2"
+  org:"maritanino-order-org-v2",
+  services:"maritanino-order-services-v1"
 };
 const LONG_PRESS_MS=550;
 const MOVE_CANCEL_PX=14;
 
 const toolsGrid=document.querySelector('.tools-grid');
 const orgGrid=document.querySelector('.org-grid');
+const servicesGrid=document.querySelector('.services-grid');
 const reorderToast=document.getElementById('reorderToast');
 const moveBanner=document.getElementById('moveBanner');
 const moveText=document.getElementById('moveText');
@@ -1542,7 +1564,8 @@ function currentOrder(grid){
 }
 const DEFAULT_ORDER={
   tools:currentOrder(toolsGrid),
-  org:currentOrder(orgGrid)
+  org:currentOrder(orgGrid),
+  services:currentOrder(servicesGrid)
 };
 
 function applySavedOrder(grid,storageKey){
@@ -1575,7 +1598,9 @@ function showReorderToast(text,delay=1400){
 }
 
 function storageKeyForGrid(grid){
-  return grid===toolsGrid ? REORDER_STORAGE.tools : REORDER_STORAGE.org;
+  if(grid===toolsGrid) return REORDER_STORAGE.tools;
+  if(grid===orgGrid) return REORDER_STORAGE.org;
+  return REORDER_STORAGE.services;
 }
 
 function migrateOldOrder(newKey,oldKey){
@@ -1601,6 +1626,7 @@ try{
 
 applySavedOrder(toolsGrid,REORDER_STORAGE.tools);
 applySavedOrder(orgGrid,REORDER_STORAGE.org);
+applySavedOrder(servicesGrid,REORDER_STORAGE.services);
 
 let moveState=null;
 let pressState=null;
@@ -1700,6 +1726,7 @@ function installReorder(grid){
 
 installReorder(toolsGrid);
 installReorder(orgGrid);
+installReorder(servicesGrid);
 
 document.addEventListener('click',e=>{
   const card=e.target.closest('.card');
@@ -1750,6 +1777,7 @@ document.getElementById('resetOrderBtn').onclick=()=>{
   try{
     localStorage.removeItem(REORDER_STORAGE.tools);
     localStorage.removeItem(REORDER_STORAGE.org);
+    localStorage.removeItem(REORDER_STORAGE.services);
     localStorage.removeItem("maritanino-order-tools-v1");
     localStorage.removeItem("maritanino-order-org-v1");
   }catch(e){}
@@ -1770,6 +1798,7 @@ document.getElementById('resetOrderBtn').onclick=()=>{
 
   restore(toolsGrid,DEFAULT_ORDER.tools);
   restore(orgGrid,DEFAULT_ORDER.org);
+  restore(servicesGrid,DEFAULT_ORDER.services);
   document.getElementById('infoSheet').classList.remove('active');
   showReorderToast("Ordine originale ripristinato ✓",1700);
 };
