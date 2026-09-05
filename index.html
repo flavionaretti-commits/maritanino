@@ -38,6 +38,10 @@
   --orange-soft:#fff0e3;
   --blue:#2f6fb0;
   --blue-soft:#eaf3fb;
+  --violet:#6941b8;
+  --violet-soft:#f0e9ff;
+  --teal:#087a74;
+  --teal-soft:#dff5f2;
   --hero1:#fff9f1;
   --hero2:#ffe5ce;
   --hero-ink:#6c5543;
@@ -55,6 +59,10 @@
   --orange-soft:#3a281c;
   --blue:#63a7e8;
   --blue-soft:#1c3145;
+  --violet:#c4a7ff;
+  --violet-soft:#372653;
+  --teal:#69d8cf;
+  --teal-soft:#173d3b;
   --hero1:#26211d;
   --hero2:#35251b;
   --hero-ink:#f1c9aa;
@@ -136,6 +144,12 @@ button{cursor:pointer}
 }
 .card.external .badge,.card.menu .badge{
   background:var(--blue-soft);color:var(--blue)
+}
+.badge.badge-app{
+  background:var(--violet-soft);color:var(--violet)
+}
+.badge.badge-section{
+  background:var(--teal-soft);color:var(--teal)
 }
 .card.soon{opacity:.70}
 .card.soon .badge{background:color-mix(in srgb,var(--panel) 80%,#777 20%);color:var(--muted)}
@@ -408,7 +422,7 @@ body.move-mode .card{cursor:pointer}
     </button>
 
     <button class="card" data-kind="internal" data-key="banchi">
-      <span class="badge">APP</span><span class="emoji">🪑</span>
+      <span class="badge badge-app">APP</span><span class="emoji">🪑</span>
       <b>Disposizione banchi</b>
       <p>Organizza l’aula, assegna i cognomi, salva, estrae e stampa.</p>
     </button>
@@ -495,7 +509,7 @@ body.move-mode .card{cursor:pointer}
 
 
     <button class="card" data-kind="internal" data-key="materiali">
-      <span class="badge">SEZIONE</span><span class="emoji">🗂️</span>
+      <span class="badge badge-section">SEZIONE</span><span class="emoji">🗂️</span>
       <b>Materiali</b>
       <p>PDF, immagini e documenti utili sempre aggiornabili.</p>
     </button>
@@ -525,7 +539,7 @@ body.move-mode .card{cursor:pointer}
     </button>
 
     <button class="card" data-kind="internal" data-key="cineteca">
-      <span class="badge">SEZIONE</span><span class="emoji">🎬</span>
+      <span class="badge badge-section">SEZIONE</span><span class="emoji">🎬</span>
       <b>Cineteca della Maritano</b>
       <p>Elenco dei film disponibili e delle risorse video del plesso.</p>
     </button>
@@ -1093,7 +1107,7 @@ body.move-mode .card{cursor:pointer}
     <p><strong>Servizi esterni</strong>: calendari, strumenti condivisi e siti collegati vengono aperti nel relativo servizio, senza duplicarne le funzioni. Gli accessi avvengono direttamente sui siti ufficiali: MARITANINO non riceve né memorizza le credenziali.</p>
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
     <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI, ORGANIZZAZIONE e SERVIZI ISTITUZIONALI si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
-    <p><strong>Documenti nuovi e aggiornati</strong>: un punto luminoso segnala i documenti riservati mai aperti su questo dispositivo (<strong>NUOVO</strong>) o modificati dopo l’ultima apertura (<strong>AGGIORNATO</strong>). Quando apri il documento, l’avviso scompare. Questa memoria resta solo su questo dispositivo.</p>
+    <p><strong>Documenti nuovi e aggiornati</strong>: un punto luminoso arancione segnala i documenti riservati mai aperti su questo dispositivo (<strong>NUOVO</strong>) o modificati dopo l’ultima apertura (<strong>AGGIORNATO</strong>). Quando apri il documento, l’avviso scompare. L’arancione è riservato a questi avvisi e la memoria resta solo su questo dispositivo.</p>
     <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
     <div class="info-credit">
