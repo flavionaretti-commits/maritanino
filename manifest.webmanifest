@@ -3,6 +3,7 @@
   "short_name": "MARITANINO",
   "description": "Cruscotto digitale del plesso Maritano.",
   "lang": "it-IT",
+  "id": "/maritanino/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
