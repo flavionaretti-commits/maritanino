@@ -1,4 +1,4 @@
-const CACHE_NAME = "maritanino-shell-v16-pwa-id-20260906";
+const CACHE_NAME = "maritanino-shell-v17-sync-indicator-20260907";
 
 const APP_SHELL = [
   "./",

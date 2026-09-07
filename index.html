@@ -105,6 +105,36 @@ button{cursor:pointer}
 }
 .brand small{display:block;color:var(--muted);margin-top:3px}
 .top-actions{display:flex;align-items:center;gap:8px}
+.sync-status{
+  width:24px;height:44px;display:grid;place-items:center;flex:0 0 auto;
+}
+.sync-dot{
+  width:12px;height:12px;border-radius:50%;display:block;
+  background:#d97706;
+  box-shadow:0 0 0 0 rgba(217,119,6,.48);
+}
+.sync-status.syncing .sync-dot{
+  animation:syncPulse 1.05s ease-out infinite;
+}
+.sync-status.ready .sync-dot{
+  background:#22a447;
+  box-shadow:0 0 0 3px color-mix(in srgb,#22a447 20%,transparent);
+}
+.sync-status.error .sync-dot{
+  background:#d9363e;
+  box-shadow:0 0 0 3px color-mix(in srgb,#d9363e 18%,transparent);
+}
+@keyframes syncPulse{
+  0%{opacity:1;box-shadow:0 0 0 0 rgba(217,119,6,.50)}
+  70%{opacity:.55;box-shadow:0 0 0 7px rgba(217,119,6,0)}
+  100%{opacity:1;box-shadow:0 0 0 0 rgba(217,119,6,0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .sync-status.syncing .sync-dot{
+    animation:none;
+    box-shadow:0 0 0 3px color-mix(in srgb,#d97706 20%,transparent);
+  }
+}
 .iconbtn{
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
   width:44px;height:44px;border-radius:12px;font-weight:800;
@@ -354,6 +384,10 @@ body.move-mode .card{cursor:pointer}
   .badge{top:10px;right:10px}
 }
 @media(max-width:360px){
+  .brand h1{font-size:1.05rem}
+  .top-actions{gap:5px}
+  .sync-status{width:18px}
+  .iconbtn{width:40px;height:40px}
   .org-grid,.tools-grid,.services-grid{grid-template-columns:1fr}
   .card{min-height:126px}
 }
@@ -393,6 +427,9 @@ body.move-mode .card{cursor:pointer}
       </div>
     </div>
     <div class="top-actions">
+      <span class="sync-status syncing" id="syncStatus" role="status" aria-label="Sincronizzazione documenti in corso" title="Sincronizzazione documenti in corso">
+        <span class="sync-dot" aria-hidden="true"></span>
+      </span>
       <button class="iconbtn" id="themeBtn" aria-label="Cambia tema" title="Giorno / Notte">🌙</button>
       <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
     </div>
@@ -1209,6 +1246,21 @@ const LINKS={
 const DOC_META_ENDPOINT="https://script.google.com/macros/s/AKfycbwpdStShmaNWMP4knPemTW6QMnwZeQyeHVlibVfjF4WKiw00IhwEkRs8SAY6pGLnSlMdw/exec";
 const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
 const DOC_META_BY_ID={};
+let DOC_META_RESPONSE_COUNT=0;
+const syncStatus=document.getElementById("syncStatus");
+
+function setDocumentSyncState(state){
+  if(!syncStatus) return;
+  const labels={
+    syncing:"Sincronizzazione documenti in corso",
+    ready:"Sincronizzazione documenti completata",
+    error:"Sincronizzazione documenti non riuscita: riapri MARITANINO per riprovare"
+  };
+  const label=labels[state] || labels.syncing;
+  syncStatus.className=`sync-status ${state}`;
+  syncStatus.setAttribute("aria-label",label);
+  syncStatus.title=label;
+}
 
 function formatDocumentUpdate(iso){
   const d=new Date(iso);
@@ -1415,6 +1467,7 @@ function markDocumentSeenByKey(key){
 
 window.maritaninoDocMeta=function(dati){
   if(!dati || typeof dati!=="object") return;
+  DOC_META_RESPONSE_COUNT+=1;
 
   Object.entries(dati).forEach(([idOrKey,info])=>{
     if(!info || info.errore || !info.aggiornato) return;
@@ -1434,21 +1487,53 @@ window.maritaninoDocMeta=function(dati){
 
 function loadDocumentMetadata(){
   const ids=Object.keys(DOC_KEYS_BY_ID);
-  if(!ids.length) return;
+  if(!ids.length){
+    setDocumentSyncState("ready");
+    return;
+  }
 
   /* Piccoli blocchi evitano URL troppo lunghi se in futuro i documenti aumentano. */
   const batchSize=25;
+  const totalBatches=Math.ceil(ids.length/batchSize);
+  const responsesAtStart=DOC_META_RESPONSE_COUNT;
+  let completedBatches=0;
+  let failedBatches=0;
+  setDocumentSyncState("syncing");
+
+  function finishBatch(success){
+    completedBatches+=1;
+    if(!success) failedBatches+=1;
+    if(completedBatches===totalBatches){
+      const receivedResponses=DOC_META_RESPONSE_COUNT-responsesAtStart;
+      setDocumentSyncState(
+        failedBatches || receivedResponses<totalBatches ? "error" : "ready"
+      );
+    }
+  }
+
   for(let i=0;i<ids.length;i+=batchSize){
     const batch=ids.slice(i,i+batchSize);
     const script=document.createElement("script");
+    let settled=false;
+    const settle=success=>{
+      if(settled) return;
+      settled=true;
+      clearTimeout(timeoutId);
+      script.remove();
+      finishBatch(success);
+    };
     const sep=DOC_META_ENDPOINT.includes("?") ? "&" : "?";
     script.src=`${DOC_META_ENDPOINT}${sep}ids=${encodeURIComponent(batch.join(","))}&prefix=maritaninoDocMeta&_=${Date.now()}-${i}`;
     script.async=true;
-    script.onload=()=>script.remove();
+    script.onload=()=>settle(true);
     script.onerror=()=>{
       console.warn("Metadati documenti non disponibili.");
-      script.remove();
+      settle(false);
     };
+    const timeoutId=setTimeout(()=>{
+      console.warn("Sincronizzazione documenti scaduta.");
+      settle(false);
+    },20000);
     document.head.appendChild(script);
   }
 }
