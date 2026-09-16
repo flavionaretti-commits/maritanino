@@ -149,6 +149,22 @@ button{cursor:pointer}
 }
 .hero h2{margin:0 0 6px;font-size:clamp(1.3rem,4vw,2rem)}
 .hero p{margin:0;color:var(--hero-ink);line-height:1.45}
+.global-doc-alert{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:0 0 14px;padding:11px 13px;border-radius:14px;
+  border:1px solid color-mix(in srgb,var(--orange) 48%,var(--line));
+  background:var(--orange-soft);color:var(--orange-strong);
+}
+.global-doc-alert[hidden]{display:none}
+.global-doc-summary{
+  display:flex;align-items:center;gap:8px;min-width:0;font-size:.86rem;font-weight:900;
+}
+.global-doc-alert button{
+  flex:0 0 auto;border:1px solid color-mix(in srgb,var(--orange) 62%,var(--line));
+  background:var(--panel);color:var(--orange-strong);border-radius:10px;
+  padding:8px 11px;font-size:.78rem;font-weight:850;
+}
+.global-doc-alert button:active{transform:translateY(1px)}
 .section-title{
   display:flex;align-items:end;justify-content:space-between;gap:10px;
   margin:20px 4px 9px
@@ -381,6 +397,8 @@ body.move-mode .card{cursor:pointer}
   .card p{font-size:.78rem;padding-right:5px}
   .brand small{display:none}
   .hero{padding:16px}
+  .global-doc-alert{align-items:stretch;flex-direction:column}
+  .global-doc-alert button{width:100%}
   .badge{top:10px;right:10px}
 }
 @media(max-width:360px){
@@ -439,6 +457,14 @@ body.move-mode .card{cursor:pointer}
     <h2>Tutta la Maritano in un posto solo.</h2>
     <p>Strumenti, organizzazione, servizi istituzionali, materiali e risorse del plesso, raccolti in una Home unica e facile da aggiornare.</p>
   </section>
+
+  <div class="global-doc-alert" id="globalDocAlert" role="status" aria-live="polite" hidden>
+    <div class="global-doc-summary">
+      <span class="section-alert-dot" aria-hidden="true"></span>
+      <span id="globalDocAlertLabel"></span>
+    </div>
+    <button type="button" id="markAllSeenBtn">Segna tutti come già visti</button>
+  </div>
 
   <div class="section-title">
     <h3>Strumenti</h3>
@@ -1247,9 +1273,11 @@ const DOC_META_ENDPOINT="https://script.google.com/macros/s/AKfycbwpdStShmaNWMP4
 const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
 const DOC_META_BY_ID={};
 let DOC_META_RESPONSE_COUNT=0;
+let DOC_SYNC_STATE="syncing";
 const syncStatus=document.getElementById("syncStatus");
 
 function setDocumentSyncState(state){
+  DOC_SYNC_STATE=state;
   if(!syncStatus) return;
   const labels={
     syncing:"Sincronizzazione documenti in corso",
@@ -1260,6 +1288,7 @@ function setDocumentSyncState(state){
   syncStatus.className=`sync-status ${state}`;
   syncStatus.setAttribute("aria-label",label);
   syncStatus.title=label;
+  renderSectionAlerts();
 }
 
 function formatDocumentUpdate(iso){
@@ -1447,6 +1476,28 @@ function renderSectionAlerts(){
     alert.querySelector(".section-alert-label").textContent=testo;
     alert.setAttribute("aria-label",testo);
   });
+
+  const globalAlert=document.getElementById("globalDocAlert");
+  const globalLabel=document.getElementById("globalDocAlertLabel");
+  if(!globalAlert || !globalLabel) return;
+
+  if(DOC_SYNC_STATE!=="ready"){
+    globalAlert.hidden=true;
+    return;
+  }
+
+  const unreadCount=Object.keys(DOC_META_BY_ID).filter(id=>
+    documentStateForId(id)
+  ).length;
+  if(!unreadCount){
+    globalAlert.hidden=true;
+    return;
+  }
+
+  globalLabel.textContent=unreadCount===1
+    ? "1 documento da vedere"
+    : `${unreadCount} documenti da vedere`;
+  globalAlert.hidden=false;
 }
 
 function renderAllDocumentStates(){
@@ -1464,6 +1515,32 @@ function markDocumentSeenByKey(key){
   renderDocumentById(id);
   renderSectionAlerts();
 }
+
+function markAllDocumentsSeen(){
+  const unreadIds=Object.keys(DOC_META_BY_ID).filter(id=>
+    documentStateForId(id)
+  );
+  const count=unreadIds.length;
+  if(!count) return;
+
+  const oggetto=count===1 ? "il documento" : `tutti i ${count} documenti`;
+  if(!window.confirm(
+    `Vuoi segnare come già visti ${oggetto}? I badge torneranno quando i documenti verranno modificati nuovamente.`
+  )) return;
+
+  unreadIds.forEach(id=>{
+    DOC_SEEN[id]=DOC_META_BY_ID[id].aggiornato;
+  });
+  saveSeenDocuments();
+  renderAllDocumentStates();
+
+  const messaggio=count===1
+    ? "Documento segnato come già visto ✓"
+    : `${count} documenti segnati come già visti ✓`;
+  showReorderToast(messaggio,1800);
+}
+
+document.getElementById("markAllSeenBtn")?.addEventListener("click",markAllDocumentsSeen);
 
 window.maritaninoDocMeta=function(dati){
   if(!dati || typeof dati!=="object") return;
