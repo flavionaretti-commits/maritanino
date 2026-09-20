@@ -472,10 +472,10 @@ body.move-mode .card{cursor:pointer}
   </div>
 
   <div class="grid tools-grid">
-    <button class="card external" data-kind="external" data-key="sostituzioni">
+    <button class="card menu" data-key="sostituzioni" data-menu="sostituzioniSheet">
       <span class="badge">🔐 RISERVATO</span><span class="emoji">🔄</span>
       <b>Assenti e sostituzioni</b>
-      <p>Apri il documento condiviso su GoodNotes per assenze e sostituzioni del plesso.</p>
+      <p>Consulta le sostituzioni in tempo reale o compila il registro collaborativo.</p>
     </button>
 
     <button class="card menu" data-key="prenotazioni" data-menu="prenotazioniSheet">
@@ -656,6 +656,25 @@ body.move-mode .card{cursor:pointer}
   <button id="cancelMoveBtn" type="button">Annulla</button>
 </div>
 <div class="reorder-toast" id="reorderToast" role="status" aria-live="polite"></div>
+
+<div class="sheet" id="sostituzioniSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🔄 Assenti e sostituzioni</h3>
+      <button class="close" data-close="sostituzioniSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="sostituzioni" data-link-label="Sostituzioni in tempo reale">
+        <span class="emoji">🕒</span>
+        <div><b>SOSTITUZIONI in TEMPO REALE</b><small>Documento condiviso su Goodnotes</small></div><span class="menu-arrow">›</span>
+      </button>
+      <button class="menu-item submenu-link" data-link-key="sostituzioniCollaborative" data-link-label="Sostituzioni collaborative">
+        <span class="emoji">🤝</span>
+        <div><b>SOSTITUZIONI COLLABORATIVE</b><small>Registro Excel condiviso su SharePoint</small></div><span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="sheet" id="prenotazioniSheet">
   <div class="sheetbox">
@@ -1257,6 +1276,7 @@ const LINKS={
   loghiGiocoCase:"https://drive.google.com/drive/folders/1YLwrxzoFb6drZbepFWZFMWdi1tPsayZY?usp=sharing",
   loghiUtili:"https://drive.google.com/drive/folders/1qk8ZQEMfwMOCvHQbAHFmx35T66eimCqs?usp=sharing",
   sostituzioni:"https://share.goodnotes.com/s/lebuJKMUgN4SfeOqObcS8A",
+  sostituzioniCollaborative:"https://baricco.sharepoint.com/:x:/r/sites/MARITANINI856/_layouts/15/Doc.aspx?action=edit&sourcedoc=%7Bb504ed3d-3104-4688-8c56-bef41c085a14%7D&wdExp=TEAMS-TREATMENT&web=1",
   prenotazioni:"https://calendar.google.com/calendar/u/0/r",
   calAulaRiunioni:"https://calendar.google.com/calendar/u/0?cid=ZDBhOWExMzViYTM5NGFiZmIzOWQ3YjQ3NjdiZGQ5Nzg2M2JiMmJhZTk5NjAxODc2ODdmMjExM2YxMzE5MmI0ZUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
   calAulaVerde:"https://calendar.google.com/calendar/u/0?cid=ZWY5YWM4NmY4MTNlNmUwODk3NmNkODllZWI2N2M1M2ZmMjUwM2E2ODdlMjQ5MmQ5NzQwMjk2MGUxMjNmMGQ5NkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
@@ -1996,6 +2016,9 @@ document.getElementById('resetOrderBtn').onclick=()=>{
 };
 
 /* SOTTOMENU */
+document.querySelector('[data-menu="sostituzioniSheet"]').onclick=()=>{
+  document.getElementById('sostituzioniSheet').classList.add('active');
+};
 document.querySelector('[data-menu="prenotazioniSheet"]').onclick=()=>{
   document.getElementById('prenotazioniSheet').classList.add('active');
 };
