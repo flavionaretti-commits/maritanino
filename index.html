@@ -546,10 +546,10 @@ body.move-mode .card{cursor:pointer}
       <p>Consulta la distribuzione delle classi e degli spazi nei tre piani del plesso.</p>
     </button>
 
-    <button class="card external" data-kind="external" data-key="smistamentoAule">
-      <span class="badge">🔐 RISERVATO</span><span class="emoji">🔀</span>
-      <b>Smistamento alunni</b>
-      <p>Consulta il documento per lo smistamento delle classi nelle aule.</p>
+    <button class="card menu" id="alunniBtn" data-key="smistamentoAule">
+      <span class="badge">MENU</span><span class="emoji">👥</span>
+      <b>Alunni: smistamento, uscite autonome e corsi pomeridiani</b>
+      <p>Consulta lo smistamento degli alunni e il file collaborativo per uscite autonome e corsi pomeridiani.</p>
     </button>
 
     <button class="card menu" id="regolamentiBtn">
@@ -1012,6 +1012,28 @@ body.move-mode .card{cursor:pointer}
   </div>
 </div>
 
+<div class="sheet" id="alunniSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>👥 Alunni: smistamento, uscite autonome e corsi pomeridiani</h3>
+      <button class="close" data-close="alunniSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="smistamentoAule" data-link-label="Smistamento alunni">
+        <span class="emoji">🔀</span>
+        <div><b>Smistamento alunni</b><small>Documento riservato · Google Drive</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="usciteAutonomeCorsi" data-link-label="Uscite autonome e corsi pomeridiani">
+        <span class="emoji">📝</span>
+        <div><b>Uscite autonome e corsi pomeridiani</b><small>File Excel collaborativo · Microsoft Teams</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="sheet" id="regolamentiSheet">
   <div class="sheetbox">
     <div class="sheethead">
@@ -1240,6 +1262,7 @@ const LINKS={
   primoPiano:"https://drive.google.com/file/d/1irB71S16vNVItM78Gy3wO4sWnaD0gclW/view?usp=sharing",
   secondoPiano:"https://drive.google.com/file/d/1b1daxxF_MGV1qdMlm7pask-_8_MoVhUj/view?usp=sharing",
   smistamentoAule:"https://drive.google.com/file/d/12ZMXSBwpLygyZKO669x1p_zDzmjA4rID/view?usp=drivesdk",
+  usciteAutonomeCorsi:"https://baricco.sharepoint.com/:x:/s/MARITANINI856/IQAzIUXFwZW9T6obMdzmBYgNAUUZWWKsIeCOWElMKdApGZw",
   regolamentoIstituto:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-d-istituto",
   regolamentoFumo:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-fumo",
   pattoCorresponsabilita:"https://www.scuolabaricco.edu.it/pagine/regolamenti/patto-di-corresponsabilita-",
@@ -1457,6 +1480,7 @@ function renderDocumentById(id){
 const DOC_SECTION_GROUPS={
   orarioBtn:["orarioSheet","orarioClassiSheet"],
   auleBtn:["auleSheet"],
+  alunniBtn:["alunniSheet"],
   regolamentiBtn:["regolamentiSheet"],
   modulisticaBtn:["modulisticaSheet"],
   giocoCaseBtn:["giocoCaseSheet"]
@@ -2035,6 +2059,7 @@ document.getElementById('orarioClassiBtn').onclick=()=>{
   document.getElementById('orarioClassiSheet').classList.add('active');
 };
 document.getElementById('auleBtn').onclick=()=>document.getElementById('auleSheet').classList.add('active');
+document.getElementById('alunniBtn').onclick=()=>document.getElementById('alunniSheet').classList.add('active');
 document.getElementById('regolamentiBtn').onclick=()=>document.getElementById('regolamentiSheet').classList.add('active');
 document.getElementById('modulisticaBtn').onclick=()=>document.getElementById('modulisticaSheet').classList.add('active');
 document.getElementById('giocoCaseBtn').onclick=()=>document.getElementById('giocoCaseSheet').classList.add('active');
