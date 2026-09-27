@@ -571,10 +571,10 @@ body.move-mode .card{cursor:pointer}
     </button>
 
 
-    <button class="card" data-kind="internal" data-key="materiali">
-      <span class="badge badge-section">SEZIONE</span><span class="emoji">🗂️</span>
-      <b>Materiali</b>
-      <p>PDF, immagini e documenti utili sempre aggiornabili.</p>
+    <button class="card menu" data-key="materiali" data-menu="documentiSheet">
+      <span class="badge">MENU</span><span class="emoji">🗂️</span>
+      <b>Documenti</b>
+      <p>Consulta i documenti condivisi riservati al personale della Maritano.</p>
     </button>
 
     <button class="card menu" id="giocoCaseBtn">
@@ -1166,6 +1166,22 @@ body.move-mode .card{cursor:pointer}
   </div>
 </div>
 
+<div class="sheet" id="documentiSheet">
+  <div class="sheetbox">
+    <div class="sheethead">
+      <h3>🗂️ Documenti</h3>
+      <button class="close" data-close="documentiSheet">×</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item submenu-link" data-link-key="iscrittiMediaMedie" data-link-label="Iscritti MEDIA alle MEDIE">
+        <span class="emoji">👥</span>
+        <div><b>Iscritti MEDIA alle MEDIE</b><small>Documento riservato · Microsoft Teams</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="sheet" id="giocoCaseSheet">
   <div class="sheetbox">
     <div class="sheethead">
@@ -1280,6 +1296,7 @@ const LINKS={
   regolamentoPodcastIpad:"",
   regolamentoFotocopie:"https://drive.google.com/file/d/1wWOfUZ5S3GX9-HVetiO5ROT6D_8ufg4r/view?usp=sharing",
   materiali:"",
+  iscrittiMediaMedie:"https://baricco.sharepoint.com/:b:/s/MARITANINI856/IQB8Xz7NOfdvR61Mr0KKbRDmAVq36jeFX-LbR9WxzYBMosQ?e=GGK00P",
   giocoCaseApp:"https://flavionaretti-commits.github.io/gioco-delle-case/",
   giocoCaseCompleto:"https://drive.google.com/file/d/1PCT5-ze8w8abjyNAE_2gnlDzK-b978lJ/view?usp=sharing",
   giocoCaseBreve:"https://drive.google.com/file/d/11FNmlez2HIaxXGDI0R2RcLTkbtbj2wWJ/view?usp=sharing",
@@ -2046,6 +2063,9 @@ document.querySelector('[data-menu="sostituzioniSheet"]').onclick=()=>{
 };
 document.querySelector('[data-menu="prenotazioniSheet"]').onclick=()=>{
   document.getElementById('prenotazioniSheet').classList.add('active');
+};
+document.querySelector('[data-menu="documentiSheet"]').onclick=()=>{
+  document.getElementById('documentiSheet').classList.add('active');
 };
 document.getElementById('aggiungiCalendariBtn').onclick=()=>{
   document.getElementById('prenotazioniSheet').classList.remove('active');
