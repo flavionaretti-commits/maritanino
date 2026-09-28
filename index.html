@@ -98,6 +98,26 @@ button{cursor:pointer}
   width:48px;height:48px;border-radius:14px;background:var(--orange);
   display:grid;place-items:center;color:#fff;font-weight:900;font-size:1.35rem;
   box-shadow:var(--shadow);flex:0 0 auto;
+  position:relative;overflow:hidden;isolation:isolate;
+  animation:logoGlow 7.2s ease-in-out infinite;
+}
+.logo::after{
+  content:"";position:absolute;z-index:2;pointer-events:none;
+  top:-35%;bottom:-35%;left:-58%;width:30%;
+  background:linear-gradient(90deg,transparent,rgba(255,245,205,.92),rgba(255,255,255,.98),rgba(255,245,205,.84),transparent);
+  filter:blur(.35px);transform:skewX(-18deg);
+  animation:logoShine 7.2s ease-in-out infinite;
+}
+@keyframes logoShine{
+  0%,70%{left:-58%;opacity:0}
+  73%{opacity:0}
+  76%{opacity:1}
+  87%{left:132%;opacity:1}
+  90%,100%{left:132%;opacity:0}
+}
+@keyframes logoGlow{
+  0%,72%,92%,100%{box-shadow:var(--shadow)}
+  79%,86%{box-shadow:0 0 0 1px rgba(255,226,155,.48),0 0 18px rgba(255,174,75,.42),var(--shadow)}
 }
 .brand h1{
   font-size:clamp(1.25rem,3vw,1.8rem);margin:0;letter-spacing:.06em;
@@ -134,6 +154,8 @@ button{cursor:pointer}
     animation:none;
     box-shadow:0 0 0 3px color-mix(in srgb,#d97706 20%,transparent);
   }
+  .logo{animation:none}
+  .logo::after{display:none;animation:none}
 }
 .iconbtn{
   border:1px solid var(--line);background:var(--panel);color:var(--ink);
