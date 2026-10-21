@@ -494,7 +494,7 @@ body.move-mode .card{cursor:pointer}
   </div>
 
   <div class="grid tools-grid">
-    <button class="card menu" data-key="sostituzioni" data-menu="sostituzioniSheet">
+    <button class="card menu" id="sostituzioniBtn" data-key="sostituzioni" data-menu="sostituzioniSheet">
       <span class="badge">🔐 RISERVATO</span><span class="emoji">🔄</span>
       <b>Assenti e sostituzioni</b>
       <p>Consulta il PDF aggiornato delle sostituzioni oppure compila il registro collaborativo.</p>
@@ -1368,6 +1368,7 @@ const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
 const DOC_META_BY_ID={};
 let DOC_META_RESPONSE_COUNT=0;
 let DOC_SYNC_STATE="syncing";
+let LAST_DOC_META_CHECK=0;
 const syncStatus=document.getElementById("syncStatus");
 
 function setDocumentSyncState(state){
@@ -1521,6 +1522,7 @@ function renderDocumentById(id){
 }
 
 const DOC_SECTION_GROUPS={
+  sostituzioniBtn:["sostituzioniSheet"],
   orarioBtn:["orarioSheet","orarioClassiSheet"],
   auleBtn:["auleSheet"],
   alunniBtn:["alunniSheet"],
@@ -1658,6 +1660,7 @@ window.maritaninoDocMeta=function(dati){
 };
 
 function loadDocumentMetadata(){
+  LAST_DOC_META_CHECK=Date.now();
   const ids=Object.keys(DOC_KEYS_BY_ID);
   if(!ids.length){
     setDocumentSyncState("ready");
@@ -1711,6 +1714,16 @@ function loadDocumentMetadata(){
 }
 
 loadDocumentMetadata();
+
+/* Solo metadati: ricontrollo ogni 5 minuti se la PWA è aperta.
+   Al ritorno nell'app riprova soltanto se l'ultimo controllo è scaduto. */
+function refreshDocumentMetadataIfDue(){
+  if(!document.hidden && Date.now()-LAST_DOC_META_CHECK>=5*60*1000){
+    loadDocumentMetadata();
+  }
+}
+setInterval(refreshDocumentMetadataIfDue,5*60*1000);
+document.addEventListener("visibilitychange",refreshDocumentMetadataIfDue);
 
 const GAMES=[
   {key:"ignorante",name:"L’IGNORANTE!",emoji:"🕵️",url:"https://flavionaretti-commits.github.io/ignorante/"},
