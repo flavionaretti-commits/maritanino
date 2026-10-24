@@ -127,7 +127,11 @@ button{cursor:pointer}
 .top-actions{display:flex;align-items:center;gap:8px}
 .sync-status{
   width:24px;height:44px;display:grid;place-items:center;flex:0 0 auto;
+  padding:0;border:0;border-radius:8px;background:transparent;appearance:none;
+  touch-action:manipulation;
 }
+.sync-status:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.sync-status:disabled{cursor:progress;opacity:1}
 .sync-dot{
   width:12px;height:12px;border-radius:50%;display:block;
   background:#d97706;
@@ -426,7 +430,6 @@ body.move-mode .card{cursor:pointer}
 @media(max-width:360px){
   .brand h1{font-size:1.05rem}
   .top-actions{gap:5px}
-  .sync-status{width:18px}
   .iconbtn{width:40px;height:40px}
   .org-grid,.tools-grid,.services-grid{grid-template-columns:1fr}
   .card{min-height:126px}
@@ -467,9 +470,9 @@ body.move-mode .card{cursor:pointer}
       </div>
     </div>
     <div class="top-actions">
-      <span class="sync-status syncing" id="syncStatus" role="status" aria-label="Sincronizzazione documenti in corso" title="Sincronizzazione documenti in corso">
+      <button type="button" class="sync-status syncing" id="syncStatus" aria-label="Sincronizzazione documenti in corso" title="Sincronizzazione documenti in corso" aria-busy="true" disabled>
         <span class="sync-dot" aria-hidden="true"></span>
-      </span>
+      </button>
       <button class="iconbtn" id="themeBtn" aria-label="Cambia tema" title="Giorno / Notte">🌙</button>
       <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
     </div>
@@ -1263,6 +1266,7 @@ body.move-mode .card{cursor:pointer}
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
     <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI, ORGANIZZAZIONE e SERVIZI ISTITUZIONALI si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
     <p><strong>Documenti nuovi e aggiornati</strong>: un punto luminoso arancione segnala i documenti riservati mai aperti su questo dispositivo (<strong>NUOVO</strong>) o modificati dopo l’ultima apertura (<strong>AGGIORNATO</strong>). Quando apri il documento, l’avviso scompare. L’arancione è riservato a questi avvisi e la memoria resta solo su questo dispositivo.</p>
+    <p><strong>Sincronizzazione documenti</strong>: il puntino in alto lampeggia durante il controllo, diventa verde al termine e rosso se il controllo non riesce. Toccalo per aggiornare subito o riprovare, senza attendere il controllo automatico. I documenti già segnati come letti restano tali.</p>
     <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
     <div class="info-credit">
@@ -1373,6 +1377,7 @@ const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
 const DOC_META_BY_ID={};
 let DOC_META_RESPONSE_COUNT=0;
 let DOC_SYNC_STATE="syncing";
+let DOC_META_LOADING=false;
 let LAST_DOC_META_CHECK=0;
 const syncStatus=document.getElementById("syncStatus");
 
@@ -1381,12 +1386,14 @@ function setDocumentSyncState(state){
   if(!syncStatus) return;
   const labels={
     syncing:"Sincronizzazione documenti in corso",
-    ready:"Sincronizzazione documenti completata",
-    error:"Sincronizzazione documenti non riuscita: riapri MARITANINO per riprovare"
+    ready:"Sincronizzazione documenti completata. Tocca per aggiornare",
+    error:"Sincronizzazione documenti non riuscita. Tocca per riprovare"
   };
   const label=labels[state] || labels.syncing;
   syncStatus.className=`sync-status ${state}`;
   syncStatus.setAttribute("aria-label",label);
+  syncStatus.setAttribute("aria-busy",String(state==="syncing"));
+  syncStatus.disabled=state==="syncing";
   syncStatus.title=label;
   renderSectionAlerts();
 }
@@ -1665,6 +1672,8 @@ window.maritaninoDocMeta=function(dati){
 };
 
 function loadDocumentMetadata(){
+  /* Un solo controllo alla volta, anche con tocchi ripetuti o ritorno nell'app. */
+  if(DOC_META_LOADING) return;
   LAST_DOC_META_CHECK=Date.now();
   const ids=Object.keys(DOC_KEYS_BY_ID);
   if(!ids.length){
@@ -1678,6 +1687,7 @@ function loadDocumentMetadata(){
   const responsesAtStart=DOC_META_RESPONSE_COUNT;
   let completedBatches=0;
   let failedBatches=0;
+  DOC_META_LOADING=true;
   setDocumentSyncState("syncing");
 
   function finishBatch(success){
@@ -1685,6 +1695,7 @@ function loadDocumentMetadata(){
     if(!success) failedBatches+=1;
     if(completedBatches===totalBatches){
       const receivedResponses=DOC_META_RESPONSE_COUNT-responsesAtStart;
+      DOC_META_LOADING=false;
       setDocumentSyncState(
         failedBatches || receivedResponses<totalBatches ? "error" : "ready"
       );
@@ -1718,6 +1729,9 @@ function loadDocumentMetadata(){
   }
 }
 
+/* Il controllo manuale ignora l'attesa dei 5 minuti e conserva lo stato di lettura.
+   Ogni richiesta ha già un parametro anti-cache per ottenere i metadati aggiornati. */
+syncStatus?.addEventListener("click",loadDocumentMetadata);
 loadDocumentMetadata();
 
 /* Solo metadati: ricontrollo ogni 5 minuti se la PWA è aperta.
@@ -2178,3 +2192,4 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
