@@ -480,7 +480,7 @@ body.move-mode .card{cursor:pointer}
 
   <section class="hero">
     <h2>Tutta la Maritano in un posto solo.</h2>
-    <p>Strumenti, organizzazione, servizi istituzionali, materiali e risorse del plesso, raccolti in una Home unica e facile da aggiornare.</p>
+    <p>Strumenti, organizzazione, servizi istituzionali, materiali e risorse del plesso, raccolti in una Home unica e facile da consultare.</p>
   </section>
 
   <div class="global-doc-alert" id="globalDocAlert" role="status" aria-live="polite" hidden>
@@ -1266,7 +1266,7 @@ body.move-mode .card{cursor:pointer}
     <p><strong>Visualizzazione</strong>: l’interfaccia è progettata per adattarsi a smartphone, tablet e PC, sia in verticale sia in orizzontale. Il tema Giorno/Notte viene scelto automaticamente in base all’orario del dispositivo e può essere cambiato manualmente con il pulsante in alto.</p>
     <p><strong>Ordine personalizzato</strong>: tieni premuta una tessera per circa mezzo secondo. Quando si evidenzia, tocca la tessera davanti alla quale vuoi inserirla. STRUMENTI, ORGANIZZAZIONE e SERVIZI ISTITUZIONALI si possono riordinare separatamente. L’ordine viene salvato solo su questo dispositivo.</p>
     <p><strong>Documenti nuovi e aggiornati</strong>: un punto luminoso arancione segnala i documenti riservati mai aperti su questo dispositivo (<strong>NUOVO</strong>) o modificati dopo l’ultima apertura (<strong>AGGIORNATO</strong>). Quando apri il documento, l’avviso scompare. L’arancione è riservato a questi avvisi e la memoria resta solo su questo dispositivo.</p>
-    <p><strong>Sincronizzazione documenti</strong>: il puntino in alto lampeggia durante il controllo, diventa verde al termine e rosso se il controllo non riesce. Toccalo per aggiornare subito o riprovare, senza attendere il controllo automatico. I documenti già segnati come letti restano tali.</p>
+    <p><strong>Sincronizzazione documenti</strong>: il puntino in alto lampeggia durante il controllo, diventa verde al termine e rosso se il controllo non riesce. Toccalo per aggiornare subito o riprovare, senza attendere il controllo automatico. Un breve “pling” conferma il controllo riuscito; il browser può richiedere un primo tocco per abilitare l’audio. I documenti già segnati come letti restano tali.</p>
     <button class="reset-order-btn" id="resetOrderBtn">↺ Ripristina ordine originale</button>
 
     <div class="info-credit">
@@ -1371,6 +1371,10 @@ const LINKS={
   libriTesto:"https://drive.google.com/file/d/1DzVSicxSN5VrfaiNfRRHvcF_CPBPB6h5/view?usp=sharing",
   banchi:"https://flavionaretti-commits.github.io/disposizione-banchi/"
 };
+
+/* Un unico contesto audio per i tocchi e il pling di sincronizzazione. */
+let audioCtx=null;
+let syncSoundPending=false;
 
 const DOC_META_ENDPOINT="https://script.google.com/macros/s/AKfycbwpdStShmaNWMP4knPemTW6QMnwZeQyeHVlibVfjF4WKiw00IhwEkRs8SAY6pGLnSlMdw/exec";
 const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
@@ -1674,6 +1678,7 @@ window.maritaninoDocMeta=function(dati){
 function loadDocumentMetadata(){
   /* Un solo controllo alla volta, anche con tocchi ripetuti o ritorno nell'app. */
   if(DOC_META_LOADING) return;
+  syncSoundPending=false;
   LAST_DOC_META_CHECK=Date.now();
   const ids=Object.keys(DOC_KEYS_BY_ID);
   if(!ids.length){
@@ -1699,6 +1704,7 @@ function loadDocumentMetadata(){
       setDocumentSyncState(
         failedBatches || receivedResponses<totalBatches ? "error" : "ready"
       );
+      if(DOC_SYNC_STATE==="ready") documentSyncSound();
     }
   }
 
@@ -1755,26 +1761,88 @@ const GAMES=[
   {key:"tombola",name:"TOMBOLA!",emoji:"🎱",url:"https://flavionaretti-commits.github.io/tombola/"}
 ];
 
-/* SUONO DISCRETO AL TAP */
-let audioCtx=null;
+/* SUONI: TAP DISCRETO E PLING DI SINCRONIZZAZIONE. */
+function appAudioContext(){
+  try{
+    const AudioContext=window.AudioContext || window.webkitAudioContext;
+    if(!AudioContext) return null;
+    if(!audioCtx || audioCtx.state==="closed") audioCtx=new AudioContext();
+    return audioCtx;
+  }catch(e){
+    return null;
+  }
+}
+
+function withAppAudio(callback){
+  const ctx=appAudioContext();
+  if(!ctx) return;
+  try{
+    if(ctx.state==="running"){
+      callback();
+      return;
+    }
+    /* resume viene invocato direttamente dal tocco, anche dopo un'interruzione. */
+    ctx.resume().then(()=>{
+      if(ctx.state==="running") callback();
+    }).catch(()=>{});
+  }catch(e){}
+}
+
+function documentSyncSound(){
+  if(document.hidden){syncSoundPending=false;return;}
+  const ctx=appAudioContext();
+  if(!ctx){syncSoundPending=false;return;}
+  /* Se l'autoplay è bloccato, conferma al primo tocco solo il successo attuale. */
+  if(ctx.state!=="running"){syncSoundPending=true;return;}
+  syncSoundPending=false;
+  try{
+    const at=ctx.currentTime+0.01;
+    /* Una campanella breve, con attacco morbido e due armoniche leggere. */
+    [[1318.51,0.18],[2637.02,0.045],[3955.53,0.02]].forEach(([hz,volume])=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type="sine";
+      osc.frequency.setValueAtTime(hz,at);
+      gain.gain.setValueAtTime(0.0001,at);
+      gain.gain.linearRampToValueAtTime(volume,at+0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001,at+0.60);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.onended=()=>{osc.disconnect();gain.disconnect();};
+      osc.start(at);
+      osc.stop(at+0.64);
+    });
+  }catch(e){}
+}
+
 function tapSound(){
   try{
-    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state==="suspended") audioCtx.resume();
-    const osc=audioCtx.createOscillator();
-    const gain=audioCtx.createGain();
+    const ctx=appAudioContext();
+    if(!ctx || ctx.state!=="running" || document.hidden) return;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
     osc.type="sine";
-    osc.frequency.setValueAtTime(520,audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.018,audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.055);
+    osc.frequency.setValueAtTime(520,ctx.currentTime);
+    gain.gain.setValueAtTime(0.018,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.055);
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(ctx.destination);
+    osc.onended=()=>{osc.disconnect();gain.disconnect();};
     osc.start();
-    osc.stop(audioCtx.currentTime+0.06);
+    osc.stop(ctx.currentTime+0.06);
   }catch(e){}
 }
 document.addEventListener('click',e=>{
-  if(e.target.closest('button')) tapSound();
+  const button=e.target.closest('button');
+  const wasPending=syncSoundPending;
+  withAppAudio(()=>{
+    if(syncSoundPending && DOC_SYNC_STATE==="ready") documentSyncSound();
+    else if(button && !wasPending) tapSound();
+  });
+});
+document.addEventListener('visibilitychange',()=>{
+  /* Non riprodurre una vecchia conferma dopo essere tornati da un'altra app. */
+  if(document.hidden) syncSoundPending=false;
 });
 
 /* TEMA GIORNO / NOTTE AUTOMATICO */
@@ -2192,4 +2260,5 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
