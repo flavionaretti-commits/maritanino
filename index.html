@@ -132,6 +132,21 @@ button{cursor:pointer}
 }
 .sync-status:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .sync-status:disabled{cursor:progress;opacity:1}
+.sync-notice{
+  display:flex;align-items:center;gap:12px;
+  margin:0 0 14px;padding:16px 18px;border-radius:18px;
+  border:2px solid var(--blue);background:var(--blue-soft);color:var(--ink);
+  box-shadow:var(--shadow);
+}
+.sync-notice[hidden]{display:none}
+.sync-notice-icon{flex:0 0 auto;font-size:1.7rem;line-height:1}
+.sync-notice-message{flex:1;min-width:0}
+.sync-notice strong{
+  display:block;color:var(--blue);font-size:clamp(1.05rem,3.5vw,1.35rem);
+  font-weight:900;letter-spacing:.025em;line-height:1.3;
+}
+.sync-notice-message>span{display:block;margin-top:5px;font-size:.9rem;line-height:1.4}
+.sync-notice.error{border-color:#d9363e;background:color-mix(in srgb,#d9363e 10%,var(--panel))}
 .sync-dot{
   width:12px;height:12px;border-radius:50%;display:block;
   background:#d97706;
@@ -475,6 +490,14 @@ body.move-mode .card{cursor:pointer}
       </button>
       <button class="iconbtn" id="themeBtn" aria-label="Cambia tema" title="Giorno / Notte">🌙</button>
       <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
+    </div>
+  </div>
+
+  <div class="sync-notice syncing" id="syncNotice" role="status" aria-live="polite" aria-atomic="true">
+    <span class="sync-notice-icon" id="syncNoticeIcon" aria-hidden="true">⏳</span>
+    <div class="sync-notice-message">
+      <strong>ATTENDERE LA LUCE VERDE!</strong>
+      <span id="syncNoticeDetail">Sincronizzazione dei documenti in corso…</span>
     </div>
   </div>
 
@@ -1384,9 +1407,23 @@ let DOC_SYNC_STATE="syncing";
 let DOC_META_LOADING=false;
 let LAST_DOC_META_CHECK=0;
 const syncStatus=document.getElementById("syncStatus");
+const syncNotice=document.getElementById("syncNotice");
+const syncNoticeDetail=document.getElementById("syncNoticeDetail");
+const syncNoticeIcon=document.getElementById("syncNoticeIcon");
 
 function setDocumentSyncState(state){
   DOC_SYNC_STATE=state;
+  /* Visibile già nell'HTML iniziale: scompare soltanto con la luce verde. */
+  if(syncNotice){
+    syncNotice.hidden=state==="ready";
+    syncNotice.className=`sync-notice ${state}`;
+  }
+  if(syncNoticeDetail){
+    syncNoticeDetail.textContent=state==="error"
+      ? "Controllo non riuscito. Tocca il puntino rosso in alto per riprovare."
+      : "Sincronizzazione dei documenti in corso…";
+  }
+  if(syncNoticeIcon) syncNoticeIcon.textContent=state==="error" ? "⚠️" : "⏳";
   if(!syncStatus) return;
   const labels={
     syncing:"Sincronizzazione documenti in corso",
@@ -2260,5 +2297,6 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
