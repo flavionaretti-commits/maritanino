@@ -596,8 +596,8 @@ body.move-mode .card{cursor:pointer}
 
     <button class="card menu" id="alunniBtn" data-key="smistamentoAule">
       <span class="badge">MENU</span><span class="emoji">👥</span>
-      <b>Alunni: smistamento, uscite autonome e corsi pomeridiani</b>
-      <p>Consulta lo smistamento degli alunni e il file collaborativo per uscite autonome e corsi pomeridiani.</p>
+      <b>Alunni, smistamento, uscite autonome, progetto &quot;media alle medie&quot; e corsi pomeridiani</b>
+      <p>Consulta smistamento, uscite autonome, calendario del progetto &quot;media alle medie&quot; e corsi pomeridiani.</p>
     </button>
 
     <button class="card menu" id="regolamentiBtn">
@@ -1070,7 +1070,7 @@ body.move-mode .card{cursor:pointer}
 <div class="sheet" id="alunniSheet">
   <div class="sheetbox">
     <div class="sheethead">
-      <h3>👥 Alunni: smistamento, uscite autonome e corsi pomeridiani</h3>
+      <h3>👥 Alunni, smistamento, uscite autonome, progetto &quot;media alle medie&quot; e corsi pomeridiani</h3>
       <button class="close" data-close="alunniSheet">×</button>
     </div>
     <div class="menu-list">
@@ -1083,6 +1083,12 @@ body.move-mode .card{cursor:pointer}
       <button class="menu-item submenu-link" data-link-key="usciteAutonomeCorsi" data-link-label="Uscite autonome e corsi pomeridiani">
         <span class="emoji">📝</span>
         <div><b>Uscite autonome e corsi pomeridiani</b><small>File Excel collaborativo · Microsoft Teams</small></div>
+        <span class="menu-arrow">›</span>
+      </button>
+
+      <button class="menu-item submenu-link" data-link-key="calendarioMediaMedie" data-link-label="Calendario media alle medie">
+        <span class="emoji">🗓️</span>
+        <div><b>Calendario media alle medie</b><small>Documento riservato · Google Drive</small></div>
         <span class="menu-arrow">›</span>
       </button>
     </div>
@@ -1336,6 +1342,7 @@ const LINKS={
   secondoPiano:"https://drive.google.com/file/d/1b1daxxF_MGV1qdMlm7pask-_8_MoVhUj/view?usp=sharing",
   smistamentoAule:"https://drive.google.com/file/d/12ZMXSBwpLygyZKO669x1p_zDzmjA4rID/view?usp=drivesdk",
   usciteAutonomeCorsi:"https://baricco.sharepoint.com/:x:/s/MARITANINI856/IQAzIUXFwZW9T6obMdzmBYgNAUUZWWKsIeCOWElMKdApGZw",
+  calendarioMediaMedie:"https://drive.google.com/file/d/1Tis1Xm496hBnG0sboKv8Y4ypInRbmWtg/view?usp=drivesdk",
   regolamentoIstituto:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-d-istituto",
   regolamentoFumo:"https://www.scuolabaricco.edu.it/pagine/regolamenti/regolamento-fumo",
   pattoCorresponsabilita:"https://www.scuolabaricco.edu.it/pagine/regolamenti/patto-di-corresponsabilita-",
