@@ -147,6 +147,39 @@ button{cursor:pointer}
 }
 .sync-notice-message>span{display:block;margin-top:5px;font-size:.9rem;line-height:1.4}
 .sync-notice.error{border-color:#d9363e;background:color-mix(in srgb,#d9363e 10%,var(--panel))}
+.birthday-banner{
+  display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:15px 18px;
+  border:1px solid color-mix(in srgb,var(--violet) 55%,var(--line));border-radius:18px;
+  background:linear-gradient(115deg,var(--violet-soft),var(--blue-soft));
+  color:var(--ink);box-shadow:var(--shadow);
+}
+.birthday-banner[hidden],.birthday-balloons[hidden]{display:none}
+.birthday-icon{flex:0 0 auto;font-size:1.9rem;line-height:1}
+.birthday-copy{flex:1;min-width:0;overflow-wrap:anywhere}
+.birthday-copy strong{display:block;font-size:clamp(1rem,3.2vw,1.2rem);line-height:1.35;color:var(--violet)}
+.birthday-copy>span{display:block;font-size:.9rem;line-height:1.4;margin-top:4px}
+.birthday-balloons{position:fixed;inset:0;overflow:hidden;z-index:80;pointer-events:none}
+.birthday-balloon{
+  position:absolute;bottom:-150px;left:var(--left);width:var(--size);height:calc(var(--size) * 1.25);
+  border-radius:50% 50% 47% 47%;
+  background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.7),transparent 38%),var(--balloon-color);
+  box-shadow:inset -5px -9px 12px rgba(0,0,0,.14);
+  animation:birthdayBalloonRise 3.6s ease-out both;animation-delay:var(--delay);
+}
+.birthday-balloon::before{
+  content:"";position:absolute;bottom:-6px;left:calc(50% - 4px);width:8px;height:8px;
+  background:var(--balloon-color);clip-path:polygon(50% 0,100% 100%,0 100%);
+}
+.birthday-balloon::after{
+  content:"";position:absolute;top:calc(100% + 6px);left:50%;width:1px;height:48px;
+  background:color-mix(in srgb,var(--ink) 45%,transparent);transform:rotate(-4deg);transform-origin:top;
+}
+@keyframes birthdayBalloonRise{
+  0%{opacity:0;transform:translate3d(0,0,0) rotate(-8deg)}
+  12%{opacity:.95}
+  85%{opacity:.95}
+  100%{opacity:0;transform:translate3d(var(--sway),calc(-100vh - 180px),0) rotate(9deg)}
+}
 .sync-dot{
   width:12px;height:12px;border-radius:50%;display:block;
   background:#d97706;
@@ -169,6 +202,8 @@ button{cursor:pointer}
   100%{opacity:1;box-shadow:0 0 0 0 rgba(217,119,6,0)}
 }
 @media(prefers-reduced-motion:reduce){
+  .birthday-balloons{display:none}
+  .birthday-balloon{animation:none}
   .sync-status.syncing .sync-dot{
     animation:none;
     box-shadow:0 0 0 3px color-mix(in srgb,#d97706 20%,transparent);
@@ -492,6 +527,16 @@ body.move-mode .card{cursor:pointer}
       <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
     </div>
   </div>
+
+  <div class="birthday-banner" id="birthdayBanner" role="status" aria-live="polite" aria-atomic="true" hidden>
+    <span class="birthday-icon" aria-hidden="true">🎂</span>
+    <div class="birthday-copy">
+      <strong id="birthdayTitle"></strong>
+      <span id="birthdayHint"></span>
+    </div>
+  </div>
+
+  <div class="birthday-balloons" id="birthdayBalloons" aria-hidden="true" hidden></div>
 
   <div class="sync-notice syncing" id="syncNotice" role="status" aria-live="polite" aria-atomic="true">
     <span class="sync-notice-icon" id="syncNoticeIcon" aria-hidden="true">⏳</span>
@@ -1406,6 +1451,16 @@ const LINKS={
 let audioCtx=null;
 let syncSoundPending=false;
 
+/* Il servizio compleanni restituisce soltanto data odierna e conteggio, mai nomi o elenco delle date. */
+const BIRTHDAYS_ENDPOINT="https://script.google.com/macros/s/AKfycbx9OfAztsQUZqdL8QjpIEhnhQDAnXcmSO7_MheSd4y8tiQCTXBI3oi7H-u_NCeJxvUCWA/exec";
+const BIRTHDAY_SHOWN_STORAGE="maritanino-birthday-celebrated-v1";
+let BIRTHDAY_DATA=null;
+let BIRTHDAY_REQUEST=null;
+let BIRTHDAY_SYNC_DAY="";
+let BIRTHDAY_CELEBRATED_DAY="";
+let BIRTHDAY_BALLOON_TIMEOUT=null;
+let BIRTHDAY_CURRENT_DAY=birthdayDateKey();
+
 const DOC_META_ENDPOINT="https://script.google.com/macros/s/AKfycbwpdStShmaNWMP4knPemTW6QMnwZeQyeHVlibVfjF4WKiw00IhwEkRs8SAY6pGLnSlMdw/exec";
 const DOC_SEEN_STORAGE="maritanino-doc-seen-v1";
 const DOC_META_BY_ID={};
@@ -1420,6 +1475,8 @@ const syncNoticeIcon=document.getElementById("syncNoticeIcon");
 
 function setDocumentSyncState(state){
   DOC_SYNC_STATE=state;
+  if(state==="ready") BIRTHDAY_SYNC_DAY=birthdayDateKey();
+  renderBirthdayNotice();
   /* Visibile già nell'HTML iniziale: scompare soltanto con la luce verde. */
   if(syncNotice){
     syncNotice.hidden=state==="ready";
@@ -1444,6 +1501,127 @@ function setDocumentSyncState(state){
   syncStatus.disabled=state==="syncing";
   syncStatus.title=label;
   renderSectionAlerts();
+}
+
+/* Giorno italiano, indipendente dal fuso scelto sul dispositivo. */
+function birthdayDateKey(){
+  try{
+    const parts=new Intl.DateTimeFormat("en-CA",{
+      timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"
+    }).formatToParts(new Date());
+    const value=type=>parts.find(p=>p.type===type).value;
+    return `${value("year")}-${value("month")}-${value("day")}`;
+  }catch(e){return "";}
+}
+
+function stopBirthdayBalloons(){
+  clearTimeout(BIRTHDAY_BALLOON_TIMEOUT);
+  BIRTHDAY_BALLOON_TIMEOUT=null;
+  const layer=document.getElementById("birthdayBalloons");
+  if(layer){layer.hidden=true;layer.textContent="";}
+}
+
+function celebrateBirthdaysOnce(day){
+  const layer=document.getElementById("birthdayBalloons");
+  if(!layer || document.hidden || DOC_SYNC_STATE!=="ready" || BIRTHDAY_CELEBRATED_DAY===day) return;
+  try{
+    if(localStorage.getItem(BIRTHDAY_SHOWN_STORAGE)===day){
+      BIRTHDAY_CELEBRATED_DAY=day;
+      return;
+    }
+  }catch(e){}
+  BIRTHDAY_CELEBRATED_DAY=day;
+  try{localStorage.setItem(BIRTHDAY_SHOWN_STORAGE,day);}catch(e){}
+  if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+
+  stopBirthdayBalloons();
+  const colors=["#ef476f","#ffb703","#06d6a0","#4cc9f0","#9b5de5","#f78fb3","#fb8500"];
+  [3,12,20,29,38,47,56,65,74,83,91,97].forEach((left,i)=>{
+    const balloon=document.createElement("span");
+    balloon.className="birthday-balloon";
+    balloon.style.setProperty("--left",`${left}%`);
+    balloon.style.setProperty("--size",`${28+(i%4)*6}px`);
+    balloon.style.setProperty("--balloon-color",colors[i%colors.length]);
+    balloon.style.setProperty("--delay",`${(i%7)*0.1}s`);
+    balloon.style.setProperty("--sway",`${i%2 ? 24 : -24}px`);
+    layer.appendChild(balloon);
+  });
+  layer.hidden=false;
+  BIRTHDAY_BALLOON_TIMEOUT=setTimeout(stopBirthdayBalloons,4500);
+}
+
+function renderBirthdayNotice(){
+  const banner=document.getElementById("birthdayBanner");
+  if(!banner) return;
+  const today=birthdayDateKey();
+  const visible=!!today && BIRTHDAY_SYNC_DAY===today &&
+    BIRTHDAY_DATA && BIRTHDAY_DATA.data===today && BIRTHDAY_DATA.numero>0;
+  banner.hidden=!visible;
+  if(!visible){stopBirthdayBalloons();return;}
+
+  const count=BIRTHDAY_DATA.numero;
+  const title=count===1 ? "Oggi è il compleanno di un Maritanino!" : `Oggi festeggiano ${count} Maritanini!`;
+  const hint=count===1
+    ? "Scopri chi è sul calendario in aula insegnanti!"
+    : "Scopri chi sono sul calendario in aula insegnanti!";
+  const titleElement=document.getElementById("birthdayTitle");
+  const hintElement=document.getElementById("birthdayHint");
+  if(titleElement && titleElement.textContent!==title) titleElement.textContent=title;
+  if(hintElement && hintElement.textContent!==hint) hintElement.textContent=hint;
+  if(DOC_SYNC_STATE==="ready") celebrateBirthdaysOnce(today);
+  else stopBirthdayBalloons();
+}
+
+window.maritaninoCompleanni=function(dati){
+  const request=BIRTHDAY_REQUEST;
+  // Ignora risposte arrivate dopo un timeout o appartenenti a una vecchia richiesta.
+  if(!request || document.currentScript!==request.script) return;
+  const today=birthdayDateKey();
+  const valid=!!today && dati && dati.ok===true && dati.data===today &&
+    Number.isSafeInteger(dati.numero) && dati.numero>=0;
+  request.received=!!valid;
+  if(valid) BIRTHDAY_DATA={data:today,numero:dati.numero};
+  renderBirthdayNotice();
+};
+
+function loadBirthdayMetadata(){
+  if(BIRTHDAY_REQUEST || !birthdayDateKey()) return;
+  const script=document.createElement("script");
+  const request={script:script,received:false,timeout:null};
+  BIRTHDAY_REQUEST=request;
+  const finish=success=>{
+    if(BIRTHDAY_REQUEST!==request) return;
+    clearTimeout(request.timeout);
+    script.onload=null;
+    script.onerror=null;
+    script.remove();
+    BIRTHDAY_REQUEST=null;
+    if(!success){
+      /* Un errore temporaneo non cancella un compleanno già verificato oggi. */
+      if(BIRTHDAY_DATA?.data!==birthdayDateKey()) BIRTHDAY_DATA=null;
+      console.warn("Compleanni non disponibili; sincronizzazione documenti invariata.");
+    }
+    renderBirthdayNotice();
+  };
+  script.src=`${BIRTHDAYS_ENDPOINT}?prefix=maritaninoCompleanni&_=${Date.now()}`;
+  script.async=true;
+  script.onload=()=>finish(request.received);
+  script.onerror=()=>finish(false);
+  request.timeout=setTimeout(()=>finish(false),20000);
+  try{document.head.appendChild(script);}catch(e){finish(false);}
+}
+
+function refreshBirthdayDay(){
+  const today=birthdayDateKey();
+  if(today===BIRTHDAY_CURRENT_DAY) return;
+  BIRTHDAY_DATA=null;
+  BIRTHDAY_SYNC_DAY="";
+  renderBirthdayNotice();
+  /* Se il giorno cambia in background, ricontrolla appena l'app torna visibile. */
+  if(!document.hidden){
+    BIRTHDAY_CURRENT_DAY=today;
+    loadDocumentMetadata();
+  }
 }
 
 function formatDocumentUpdate(iso){
@@ -1722,6 +1900,7 @@ window.maritaninoDocMeta=function(dati){
 function loadDocumentMetadata(){
   /* Un solo controllo alla volta, anche con tocchi ripetuti o ritorno nell'app. */
   if(DOC_META_LOADING) return;
+  loadBirthdayMetadata();
   syncSoundPending=false;
   LAST_DOC_META_CHECK=Date.now();
   const ids=Object.keys(DOC_KEYS_BY_ID);
@@ -1793,6 +1972,12 @@ function refreshDocumentMetadataIfDue(){
 }
 setInterval(refreshDocumentMetadataIfDue,5*60*1000);
 document.addEventListener("visibilitychange",refreshDocumentMetadataIfDue);
+setInterval(refreshBirthdayDay,60*1000);
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){stopBirthdayBalloons();return;}
+  refreshBirthdayDay();
+  renderBirthdayNotice();
+});
 
 const GAMES=[
   {key:"ignorante",name:"L’IGNORANTE!",emoji:"🕵️",url:"https://flavionaretti-commits.github.io/ignorante/"},
@@ -2304,6 +2489,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
