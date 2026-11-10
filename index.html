@@ -81,10 +81,8 @@ body{transition:background .18s ease,color .18s ease}
 button,a{font:inherit}
 button{cursor:pointer}
 .app{max-width:1180px;margin:auto;padding:12px 14px 28px}
+.sync-header{position:sticky;top:0;z-index:20}
 .topbar{
-  position:sticky;
-  top:0;
-  z-index:20;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -147,6 +145,17 @@ button{cursor:pointer}
 }
 .sync-notice-message>span{display:block;margin-top:5px;font-size:.9rem;line-height:1.4}
 .sync-notice.error{border-color:#d9363e;background:color-mix(in srgb,#d9363e 10%,var(--panel))}
+.sync-notice.syncing .sync-notice-icon{animation:syncHourglassFlip 2.2s ease-in-out infinite}
+.sync-notice.syncing strong{animation:syncNoticePulse 1.8s ease-in-out infinite}
+@keyframes syncHourglassFlip{
+  0%{transform:rotate(0deg)}
+  25%,50%{transform:rotate(180deg)}
+  75%,100%{transform:rotate(360deg)}
+}
+@keyframes syncNoticePulse{
+  0%,100%{color:var(--blue)}
+  50%{color:var(--ink)}
+}
 .birthday-banner{
   display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:15px 18px;
   border:1px solid color-mix(in srgb,var(--violet) 55%,var(--line));border-radius:18px;
@@ -208,6 +217,8 @@ button{cursor:pointer}
     animation:none;
     box-shadow:0 0 0 3px color-mix(in srgb,#d97706 20%,transparent);
   }
+  .sync-notice.syncing .sync-notice-icon,
+  .sync-notice.syncing strong{animation:none}
   .logo{animation:none}
   .logo::after{display:none;animation:none}
 }
@@ -486,7 +497,8 @@ body.move-mode .card{cursor:pointer}
 }
 @media(orientation:landscape) and (max-height:560px){
   .app{max-width:1280px;padding-top:4px}
-  .topbar{position:relative;padding:5px 0 8px;background:transparent;backdrop-filter:none}
+  .sync-header{position:relative}
+  .topbar{padding:5px 0 8px;background:transparent;backdrop-filter:none}
   .logo{width:40px;height:40px;border-radius:11px}
   .brand h1{font-size:1.22rem}
   .brand small{display:none}
@@ -511,22 +523,31 @@ body.move-mode .card{cursor:pointer}
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">M</div>
-      <div>
-        <h1>MARITANINO</h1>
-        <small>Il cruscotto digitale della Maritano</small>
+  <header class="sync-header">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">M</div>
+        <div>
+          <h1>MARITANINO</h1>
+          <small>Il cruscotto digitale della Maritano</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="sync-status syncing" id="syncStatus" aria-label="Sincronizzazione documenti in corso" title="Sincronizzazione documenti in corso" aria-busy="true" disabled>
+          <span class="sync-dot" aria-hidden="true"></span>
+        </button>
+        <button class="iconbtn" id="themeBtn" aria-label="Cambia tema" title="Giorno / Notte">🌙</button>
+        <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
       </div>
     </div>
-    <div class="top-actions">
-      <button type="button" class="sync-status syncing" id="syncStatus" aria-label="Sincronizzazione documenti in corso" title="Sincronizzazione documenti in corso" aria-busy="true" disabled>
-        <span class="sync-dot" aria-hidden="true"></span>
-      </button>
-      <button class="iconbtn" id="themeBtn" aria-label="Cambia tema" title="Giorno / Notte">🌙</button>
-      <button class="iconbtn" id="infoBtn" aria-label="Informazioni" title="Informazioni">ⓘ</button>
+    <div class="sync-notice syncing" id="syncNotice" role="status" aria-live="polite" aria-atomic="true">
+      <span class="sync-notice-icon" id="syncNoticeIcon" aria-hidden="true">⏳</span>
+      <div class="sync-notice-message">
+        <strong>ATTENDERE LA LUCE VERDE!</strong>
+        <span id="syncNoticeDetail">Sincronizzazione dei documenti in corso…</span>
+      </div>
     </div>
-  </div>
+  </header>
 
   <div class="birthday-banner" id="birthdayBanner" role="status" aria-live="polite" aria-atomic="true" hidden>
     <span class="birthday-icon" aria-hidden="true">🎂</span>
@@ -537,14 +558,6 @@ body.move-mode .card{cursor:pointer}
   </div>
 
   <div class="birthday-balloons" id="birthdayBalloons" aria-hidden="true" hidden></div>
-
-  <div class="sync-notice syncing" id="syncNotice" role="status" aria-live="polite" aria-atomic="true">
-    <span class="sync-notice-icon" id="syncNoticeIcon" aria-hidden="true">⏳</span>
-    <div class="sync-notice-message">
-      <strong>ATTENDERE LA LUCE VERDE!</strong>
-      <span id="syncNoticeDetail">Sincronizzazione dei documenti in corso…</span>
-    </div>
-  </div>
 
   <section class="hero">
     <h2>Tutta la Maritano in un posto solo.</h2>
